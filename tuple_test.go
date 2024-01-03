@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"math"
+	"testing"
+)
 
 func TestTupleW1IsPoint(t *testing.T) {
 	a := Tuple{4.3, -4.2, 3.1, 1.0}
@@ -158,5 +161,20 @@ func TestDivideTupleByScalar(t *testing.T) {
 
 	if !tupleEqual(ak, expected) {
 		t.Errorf("Expected a / 2 to be %v but got %v", expected, ak)
+	}
+}
+
+func TestMagnitude(t *testing.T) {
+	vs := []Tuple{vector(1, 0, 0), vector(0, 1, 0), vector(0, 0, 1), vector(1, 2, 3), vector(-1, -2, -3)}
+	expecteds := []float64{1, 1, 1, math.Sqrt(14), math.Sqrt(14)}
+
+	if len(vs) != len(expecteds) {
+		t.Fatalf("Do not have the same number of vectors and expected values. Cannot continue test")
+	}
+
+	for i := 0; i < len(vs); i++ {
+		if !floatEqual(vectorMagnitude(vs[i]), expecteds[i]) {
+			t.Errorf("Expected %v to have magnitude %f but got %f", vs[i], expecteds[i], vectorMagnitude(vs[i]))
+		}
 	}
 }

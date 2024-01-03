@@ -1,5 +1,7 @@
 package main
 
+import "math"
+
 type Tuple struct {
 	X float64
 	Y float64
@@ -37,6 +39,10 @@ func point(X float64, Y float64, Z float64) Tuple {
 
 func vector(X float64, Y float64, Z float64) Tuple {
 	return Tuple{X, Y, Z, 0.0}
+}
+
+func vectorMagnitude(a Tuple) float64 {
+	return math.Sqrt(a.X*a.X + a.Y*a.Y + a.Z*a.Z + a.W*a.W)
 }
 
 func isPoint(t Tuple) bool {
