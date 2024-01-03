@@ -19,6 +19,18 @@ func tupleSubtract(a Tuple, b Tuple) Tuple {
 	return Tuple{a.X - b.X, a.Y - b.Y, a.Z - b.Z, a.W - b.W}
 }
 
+func tupleMultiply(a Tuple, k float64) Tuple {
+	return Tuple{a.X * k, a.Y * k, a.Z * k, a.W * k}
+}
+
+func tupleDivide(a Tuple, k float64) Tuple {
+	return Tuple{a.X / k, a.Y / k, a.Z / k, a.W / k}
+}
+
+func tupleNegate(a Tuple) Tuple {
+	return Tuple{-a.X, -a.Y, -a.Z, -a.W}
+}
+
 func point(X float64, Y float64, Z float64) Tuple {
 	return Tuple{X, Y, Z, 1.0}
 }

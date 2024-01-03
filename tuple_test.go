@@ -84,6 +84,79 @@ func TestSubtractTwoPoints(t *testing.T) {
 	expected := vector(-2, -4, -6)
 
 	if !tupleEqual(subbed, expected) {
-		t.Errorf("Expected a1 + a2 to be %v but got %v", expected, subbed)
+		t.Errorf("Expected p1 - p2 to be %v but got %v", expected, subbed)
+	}
+}
+
+func TestSubtractVectorFromPoint(t *testing.T) {
+	p := point(3, 2, 1)
+	v := vector(5, 6, 7)
+	subbed := tupleSubtract(p, v)
+	expected := point(-2, -4, -6)
+
+	if !tupleEqual(subbed, expected) {
+		t.Errorf("Expected p - v to be %v but got %v", expected, subbed)
+	}
+}
+
+func TestSubtractTwoVectors(t *testing.T) {
+	v1 := vector(3, 2, 1)
+	v2 := vector(5, 6, 7)
+	subbed := tupleSubtract(v1, v2)
+	expected := vector(-2, -4, -6)
+
+	if !tupleEqual(subbed, expected) {
+		t.Errorf("Expected v1 - v2 to be %v but got %v", expected, subbed)
+	}
+}
+
+func TestSubtractVectorFromZeroVector(t *testing.T) {
+	zero := vector(0, 0, 0)
+	v := vector(1, -2, 3)
+	subbed := tupleSubtract(zero, v)
+	expected := vector(-1, 2, -3)
+
+	if !tupleEqual(subbed, expected) {
+		t.Errorf("Expected zero - v to be %v but got %v", expected, subbed)
+	}
+}
+
+func TestNegateTuple(t *testing.T) {
+	a := Tuple{1, -2, 3, -4}
+	aNeg := tupleNegate(a)
+	expected := Tuple{-1, 2, -3, 4}
+
+	if !tupleEqual(aNeg, expected) {
+		t.Errorf("Expected -a to be %v but got %v", expected, aNeg)
+	}
+}
+
+func TestMultiplyTupleByScalar(t *testing.T) {
+	a := Tuple{1, -2, 3, -4}
+	ak := tupleMultiply(a, 3.5)
+	expected := Tuple{3.5, -7, 10.5, -14}
+
+	if !tupleEqual(ak, expected) {
+		t.Errorf("Expected a * 3.5 to be %v but got %v", expected, ak)
+	}
+}
+
+func TestMultiplyTupleByFraction(t *testing.T) {
+	a := Tuple{1, -2, 3, -4}
+	ak := tupleMultiply(a, 0.5)
+	expected := Tuple{0.5, -1, 1.5, -2}
+
+	if !tupleEqual(ak, expected) {
+		t.Errorf("Expected a * 0.5 to be %v but got %v", expected, ak)
+	}
+}
+
+func TestDivideTupleByScalar(t *testing.T) {
+	a := Tuple{1, -2, 3, -4}
+	ak := tupleDivide(a, 2)
+	expected := Tuple{0.5, -1, 1.5, -2}
+
+	if !tupleEqual(ak, expected) {
+		t.Errorf("Expected a / 2 to be %v but got %v", expected, ak)
 	}
 }
