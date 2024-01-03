@@ -65,3 +65,25 @@ func TestVectorCreatesTupleW0(t *testing.T) {
 		t.Errorf("expected point to be %v but got %v", vv, v)
 	}
 }
+
+func TestAddTwoTuples(t *testing.T) {
+	a1 := Tuple{3, -2, 5, 1}
+	a2 := Tuple{-2, 3, 1, 0}
+	added := tupleAdd(a1, a2)
+	expected := Tuple{1, 1, 6, 1}
+
+	if !tupleEqual(added, expected) {
+		t.Errorf("Expected a1 + a2 to be %v but got %v", expected, added)
+	}
+}
+
+func TestSubtractTwoPoints(t *testing.T) {
+	p1 := point(3, 2, 1)
+	p2 := point(5, 6, 7)
+	subbed := tupleSubtract(p1, p2)
+	expected := vector(-2, -4, -6)
+
+	if !tupleEqual(subbed, expected) {
+		t.Errorf("Expected a1 + a2 to be %v but got %v", expected, subbed)
+	}
+}
