@@ -45,6 +45,24 @@ func vectorMagnitude(a Tuple) float64 {
 	return math.Sqrt(a.X*a.X + a.Y*a.Y + a.Z*a.Z + a.W*a.W)
 }
 
+func vectorNormalize(a Tuple) Tuple {
+	m := vectorMagnitude(a)
+
+	return Tuple{a.X / m, a.Y / m, a.Z / m, a.W / m}
+}
+
+func vectorDot(a Tuple, b Tuple) float64 {
+	return a.X*b.X + a.Y*b.Y + a.Z*b.Z + a.W + b.W
+}
+
+func vectorCross(a Tuple, b Tuple) Tuple {
+	return vector(
+		a.Y*b.Z-a.Z*b.Y,
+		a.Z*b.X-a.X*b.Z,
+		a.X*b.Y-a.Y*b.X,
+	)
+}
+
 func isPoint(t Tuple) bool {
 	return t.W == 1.0
 }

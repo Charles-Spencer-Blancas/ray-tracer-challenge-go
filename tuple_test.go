@@ -164,7 +164,7 @@ func TestDivideTupleByScalar(t *testing.T) {
 	}
 }
 
-func TestMagnitude(t *testing.T) {
+func TestVectorMagnitude(t *testing.T) {
 	vs := []Tuple{vector(1, 0, 0), vector(0, 1, 0), vector(0, 0, 1), vector(1, 2, 3), vector(-1, -2, -3)}
 	expecteds := []float64{1, 1, 1, math.Sqrt(14), math.Sqrt(14)}
 
@@ -176,5 +176,54 @@ func TestMagnitude(t *testing.T) {
 		if !floatEqual(vectorMagnitude(vs[i]), expecteds[i]) {
 			t.Errorf("Expected %v to have magnitude %f but got %f", vs[i], expecteds[i], vectorMagnitude(vs[i]))
 		}
+	}
+}
+
+func TestVectorNormalize(t *testing.T) {
+	vs := []Tuple{vector(4, 0, 0), vector(1, 2, 3)}
+	expecteds := []Tuple{vector(1, 0, 0), vector(0.26726, 0.53452, 0.80178)}
+	if len(vs) != len(expecteds) {
+		t.Fatalf("Do not have the same number of vectors and expected values. Cannot continue test")
+	}
+
+	for i := 0; i < len(vs); i++ {
+		if !tupleEqual(vectorNormalize(vs[i]), expecteds[i]) {
+			t.Errorf("Expected %v to be normalized to %v but got %v", vs[i], expecteds[i], vectorNormalize(vs[i]))
+		}
+	}
+}
+
+func TestMagnitudeNormalizedVector(t *testing.T) {
+	v := vector(1, 2, 3)
+	norm := vectorNormalize(v)
+
+	if vectorMagnitude(norm) != 1 {
+		t.Errorf("Expected %v to have magnitude 1, but got %f", norm, vectorMagnitude(v))
+	}
+}
+
+func TestVectorDot(t *testing.T) {
+	a := vector(1, 2, 3)
+	b := vector(2, 3, 4)
+
+	if vectorDot(a, b) != 20 {
+		t.Errorf("Expected a . b to be 20 but got %f", vectorDot(a, b))
+	}
+}
+
+func TestVectorCross(t *testing.T) {
+	a := vector(1, 2, 3)
+	b := vector(2, 3, 4)
+	axb := vectorCross(a, b)
+	expectedaxb := vector(-1, 2, -1)
+	bxa := vectorCross(b, a)
+	expectedbxa := vector(1, -2, 1)
+
+	if !tupleEqual(axb, expectedaxb) {
+		t.Errorf("Expect %v x %v to be %v but got %v", a, b, expectedaxb, axb)
+	}
+
+	if !tupleEqual(bxa, expectedbxa) {
+		t.Errorf("Expect %v x %v to be %v but got %v", b, a, expectedbxa, bxa)
 	}
 }
