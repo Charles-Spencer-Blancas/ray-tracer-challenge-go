@@ -7,6 +7,10 @@ type Tuple struct {
 	W float64
 }
 
+func tupleEqual(a Tuple, b Tuple) bool {
+	return floatEqual(a.X, b.X) && floatEqual(a.Y, b.Y) && floatEqual(a.Z, b.Z) && floatEqual(a.W, b.W)
+}
+
 func point(X float64, Y float64, Z float64) Tuple {
 	return Tuple{X, Y, Z, 1.0}
 }
