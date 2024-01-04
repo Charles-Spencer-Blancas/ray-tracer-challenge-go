@@ -179,3 +179,15 @@ func TestMultiply4x4MatrixByIdentity(t *testing.T) {
 		t.Errorf("Expected %v * identity to be %v but got %v", a, a, got)
 	}
 }
+
+func TestMultiply4x4IdentityWithTuple(t *testing.T) {
+	a := Tuple{1, 2, 3, 4}
+	i := matrixConstructIdentity(4)
+	got, err := matrix4x4TupleMultiply(i, a)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !tupleEqual(got, a) {
+		t.Errorf("Expected %v * %v to be %v but got %v", a, i, a, got)
+	}
+}
