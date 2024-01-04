@@ -1,6 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+	"os"
+)
 
 type Projectile struct {
 	Position Tuple // point
@@ -20,13 +24,21 @@ func tick(e Environment, p Projectile) Projectile {
 }
 
 func main() {
-	p := Projectile{point(0, 1, 0), tupleScale(vector(1, 1, 0), 0.2)}
+	start := point(0, 1, 0)
+	vel := tupleScale(vectorNormalize(vector(1, 1.8, 0)), 11.25)
+	p := Projectile{start, vel}
 	e := Environment{vector(0, -0.1, 0), vector(-0.01, 0, 0)}
 	t := 0
 
+	color := Color{1, 0, 0}
+	c := canvas(900, 550)
 	for p.Position.Y > 0.0 {
-		t += 1
 		fmt.Printf("tick: %d, pos: %v\n", t, p.Position)
 		p = tick(e, p)
+
+		writePixel(c, int64(math.Round(p.Position.X)), int64(550-math.Round(p.Position.Y)), color)
 	}
+
+	ppm := canvasToPPM(c)
+	os.WriteFile("example.ppm", []byte(ppm), 0644)
 }

@@ -34,6 +34,9 @@ func pixelAt(c Canvas, x int64, y int64) Color {
 }
 
 func writePixel(c Canvas, x int64, y int64, color Color) {
+	if x >= c.Width || x < 0 || y >= c.Height || y < 0 {
+		return
+	}
 	c.Pixels[y][x] = color
 }
 
