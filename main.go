@@ -20,7 +20,7 @@ func tick(e Environment, p Projectile) Projectile {
 }
 
 func main() {
-	p := Projectile{point(0, 1, 0), tupleMultiply(vector(1, 1, 0), 0.2)}
+	p := Projectile{point(0, 1, 0), tupleScale(vector(1, 1, 0), 0.2)}
 	e := Environment{vector(0, -0.1, 0), vector(-0.01, 0, 0)}
 	t := 0
 

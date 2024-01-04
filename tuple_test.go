@@ -136,7 +136,7 @@ func TestNegateTuple(t *testing.T) {
 
 func TestMultiplyTupleByScalar(t *testing.T) {
 	a := Tuple{1, -2, 3, -4}
-	ak := tupleMultiply(a, 3.5)
+	ak := tupleScale(a, 3.5)
 	expected := Tuple{3.5, -7, 10.5, -14}
 
 	if !tupleEqual(ak, expected) {
@@ -146,7 +146,7 @@ func TestMultiplyTupleByScalar(t *testing.T) {
 
 func TestMultiplyTupleByFraction(t *testing.T) {
 	a := Tuple{1, -2, 3, -4}
-	ak := tupleMultiply(a, 0.5)
+	ak := tupleScale(a, 0.5)
 	expected := Tuple{0.5, -1, 1.5, -2}
 
 	if !tupleEqual(ak, expected) {

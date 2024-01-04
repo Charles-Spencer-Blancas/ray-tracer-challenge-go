@@ -21,7 +21,7 @@ func tupleSubtract(a Tuple, b Tuple) Tuple {
 	return Tuple{a.X - b.X, a.Y - b.Y, a.Z - b.Z, a.W - b.W}
 }
 
-func tupleMultiply(a Tuple, k float64) Tuple {
+func tupleScale(a Tuple, k float64) Tuple {
 	return Tuple{a.X * k, a.Y * k, a.Z * k, a.W * k}
 }
 
