@@ -1,6 +1,8 @@
 package main
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestConstructAndInspect4x4(t *testing.T) {
 	values := [][]float64{
@@ -114,8 +116,8 @@ func TestMultiplyTwo4x4(t *testing.T) {
 	aValues := [][]float64{
 		{1, 2, 3, 4},
 		{5, 6, 7, 8},
-		{9, 10, 11, 12},
-		{13, 14, 15, 16},
+		{9, 8, 7, 6},
+		{5, 4, 3, 2},
 	}
 	a := Matrix{aValues, 4, 4}
 	bValues := [][]float64{
@@ -136,7 +138,7 @@ func TestMultiplyTwo4x4(t *testing.T) {
 		{16, 26, 46, 42},
 	}
 	if !matrixEqual(c, matrixConstruct(expectedVals)) {
-		t.Errorf("Expected %v * %v to be %v but got %v", a, b, expectedVals, c)
+		t.Errorf("Expected %v * %v to be %v but got %v", a, b, matrixConstruct(expectedVals), c)
 	}
 }
 
@@ -157,5 +159,23 @@ func TestMultiply4x4MatrixByTuple(t *testing.T) {
 
 	if !tupleEqual(got, expected) {
 		t.Errorf("Expected %v * %v to be %v but got %v", a.Values, b, expected, got)
+	}
+}
+
+func TestMultiply4x4MatrixByIdentity(t *testing.T) {
+	vals := [][]float64{
+		{0, 1, 2, 4},
+		{1, 2, 4, 8},
+		{2, 4, 8, 16},
+		{4, 8, 16, 32},
+	}
+	a := matrixConstruct(vals)
+	i := matrixConstructIdentity(4)
+	got, err := matrix4x4Multiply(a, i)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !matrixEqual(a, got) {
+		t.Errorf("Expected %v * identity to be %v but got %v", a, a, got)
 	}
 }
