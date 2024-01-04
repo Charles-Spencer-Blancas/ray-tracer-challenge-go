@@ -1,5 +1,9 @@
 package main
 
+import (
+	"fmt"
+)
+
 type Matrix struct {
 	Values [][]float64
 	Height int64
@@ -36,7 +40,10 @@ func matrixEqual(a Matrix, b Matrix) bool {
 	return true
 }
 
-func matrix4x4Multiply(aM Matrix, bM Matrix) Matrix {
+func matrix4x4Multiply(aM Matrix, bM Matrix) (Matrix, error) {
+	if aM.Height != 4 || aM.Width != 4 || bM.Height != 4 || bM.Width != 4 {
+		return Matrix{}, fmt.Errorf("can only multiply 4 x 4 matrices but got %d x %d * %d x %d", aM.Height, aM.Width, bM.Height, bM.Width)
+	}
 	a := aM.Values
 	b := bM.Values
 	out := [][]float64{}
@@ -49,5 +56,18 @@ func matrix4x4Multiply(aM Matrix, bM Matrix) Matrix {
 		}
 	}
 
-	return Matrix{out, 4, 4}
+	return Matrix{out, 4, 4}, nil
+}
+
+func matrix4x4TupleMultiply(a Matrix, t Tuple) (Tuple, error) {
+	if a.Height != 4 || a.Width != 4 {
+		return Tuple{}, fmt.Errorf("can only multiply 4 x 4 matrix but got %d x %d", a.Height, a.Width)
+	}
+	tup := [4]float64{t.X, t.Y, t.Z, t.W}
+	out := [4]float64{}
+	for i := range a.Values {
+		out[i] = a.Values[i][0]*tup[0] + a.Values[i][1]*tup[1] + a.Values[i][2]*tup[2] + a.Values[i][3]*tup[3]
+	}
+
+	return Tuple{out[0], out[1], out[2], out[3]}, nil
 }

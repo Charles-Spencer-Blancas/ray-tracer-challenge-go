@@ -125,7 +125,10 @@ func TestMultiplyTwo4x4(t *testing.T) {
 		{1, 2, 7, 8},
 	}
 	b := Matrix{bValues, 4, 4}
-	c := matrix4x4Multiply(a, b)
+	c, err := matrix4x4Multiply(a, b)
+	if err != nil {
+		t.Fatal(err)
+	}
 	expectedVals := [][]float64{
 		{20, 22, 50, 48},
 		{44, 54, 114, 108},
@@ -134,5 +137,25 @@ func TestMultiplyTwo4x4(t *testing.T) {
 	}
 	if !matrixEqual(c, matrixConstruct(expectedVals)) {
 		t.Errorf("Expected %v * %v to be %v but got %v", a, b, expectedVals, c)
+	}
+}
+
+func TestMultiply4x4MatrixByTuple(t *testing.T) {
+	vals := [][]float64{
+		{1, 2, 3, 4},
+		{2, 4, 4, 2},
+		{8, 6, 4, 1},
+		{0, 0, 0, 1},
+	}
+	a := matrixConstruct(vals)
+	b := Tuple{1, 2, 3, 1}
+	got, err := matrix4x4TupleMultiply(a, b)
+	if err != nil {
+		t.Fatal(err)
+	}
+	expected := Tuple{18, 24, 33, 1}
+
+	if !tupleEqual(got, expected) {
+		t.Errorf("Expected %v * %v to be %v but got %v", a.Values, b, expected, got)
 	}
 }
