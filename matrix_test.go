@@ -533,3 +533,34 @@ func TestInverseMatrixMore(t *testing.T) {
 		}
 	}
 }
+
+func TestMultiplyProductByInverse(t *testing.T) {
+	a := matrixConstruct([][]float64{
+		{3, -9, 7, 3},
+		{3, -8, 2, -9},
+		{-4, 4, 4, 1},
+		{-6, 5, -1, 1},
+	})
+	b := matrixConstruct([][]float64{
+		{8, 2, 2, 2},
+		{3, -1, 7, 0},
+		{7, 0, 5, 4},
+		{6, -2, 0, 5},
+	})
+	bInv, err := matrixInverse(b)
+	if err != nil {
+		t.Fatal(err)
+	}
+	c, err := matrix4x4Multiply(a, b)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	cTimesBInv, err := matrix4x4Multiply(c, bInv)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !matrixEqual(cTimesBInv, a) {
+		t.Errorf("Expected %v * %v to be %v but got %v", c, bInv, a, cTimesBInv)
+	}
+}
