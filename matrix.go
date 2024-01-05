@@ -176,3 +176,30 @@ func matrixDeterminant(a Matrix) (float64, error) {
 
 	return det, nil
 }
+
+func matrixIsInvertible(a Matrix) (bool, error) {
+	det, err := matrixDeterminant(a)
+	if err != nil {
+		return false, err
+	}
+	return det != 0, nil
+}
+
+func matrixInverse(a Matrix) (Matrix, error) {
+	cofs := make([][]float64, a.Height)
+	det, err := matrixDeterminant(a)
+	if err != nil {
+		return Matrix{}, err
+	}
+	for i := range cofs {
+		cofs[i] = make([]float64, a.Width)
+		for j := range cofs[i] {
+			cof, err := matrixCofactor(a, int64(j), int64(i))
+			if err != nil {
+				return Matrix{}, err
+			}
+			cofs[i][j] = cof / det
+		}
+	}
+	return matrixConstruct(cofs), nil
+}

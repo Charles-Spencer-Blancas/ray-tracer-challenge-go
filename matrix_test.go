@@ -393,3 +393,102 @@ func TestDeterminant4x4Matrix(t *testing.T) {
 		t.Errorf("Expected det(%v) to be -4071 but got %f", a, det)
 	}
 }
+
+func TestInvertibleMatrixIsInvertible(t *testing.T) {
+	a := matrixConstruct([][]float64{
+		{6, 4, 4, 4},
+		{5, 5, 7, 6},
+		{4, -9, 3, -7},
+		{9, 1, 7, -6},
+	})
+	det, err := matrixDeterminant(a)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !floatEqual(det, -2120) {
+		t.Errorf("Expected det(%v) to be %f but got %f", a, -2120., det)
+	}
+	inv, err := matrixIsInvertible(a)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !inv {
+		t.Errorf("Expected %v to be invertible but got that it was not", a)
+	}
+}
+
+func TestNonInvertibleMatrixIsNotInvertible(t *testing.T) {
+	a := matrixConstruct([][]float64{
+		{-4, 2, -2, -3},
+		{9, 6, 2, 6},
+		{0, -5, 1, -5},
+		{0, 0, 0, 0},
+	})
+	det, err := matrixDeterminant(a)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !floatEqual(det, 0) {
+		t.Errorf("Expected det(%v) to be %f but got %f", a, 0., det)
+	}
+	inv, err := matrixIsInvertible(a)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if inv {
+		t.Errorf("Expected %v to not be invertible but got that it was", a)
+	}
+}
+
+func TestInvertMatrix(t *testing.T) {
+	a := matrixConstruct([][]float64{
+		{-5, 2, 6, -8},
+		{1, -5, 1, 8},
+		{7, 7, -6, -7},
+		{1, -3, 7, 4},
+	})
+	b, err := matrixInverse(a)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	det, err := matrixDeterminant(a)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !floatEqual(det, 532) {
+		t.Errorf("Expected det(%v) to be %f but got %f", a, 532., det)
+	}
+
+	a23, err := matrixCofactor(a, 2, 3)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !floatEqual(a23, -160) {
+		t.Errorf("Expected cof(a,2,3) to be %f but got %f", -160., a23)
+	}
+	if !floatEqual(b.Values[3][2], -160./532.) {
+		t.Errorf("Expected b[3][2] to be %f but got %f", -160./532., b.Values[3][2])
+	}
+
+	a32, err := matrixCofactor(a, 3, 2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !floatEqual(a32, 105) {
+		t.Errorf("Expected cof(a,3,2) to be %f but got %f", 105., a32)
+	}
+	if !floatEqual(b.Values[2][3], 105./532.) {
+		t.Errorf("Expected b[3][2] to be %f but got %f", 105./532., b.Values[2][3])
+	}
+
+	expected := matrixConstruct([][]float64{
+		{0.21805, 0.45113, 0.24060, -0.04511},
+		{-0.80827, -1.45677, -0.44361, 0.52068},
+		{-0.07895, -0.22368, -0.05263, 0.19737},
+		{-0.52256, -0.81391, -0.30075, 0.30639},
+	})
+	if !matrixEqual(b, expected) {
+		t.Errorf("Expected %v to be equal to %v but they are not", b, expected)
+	}
+}
