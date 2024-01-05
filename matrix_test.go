@@ -191,3 +191,33 @@ func TestMultiply4x4IdentityWithTuple(t *testing.T) {
 		t.Errorf("Expected %v * %v to be %v but got %v", a, i, a, got)
 	}
 }
+
+func TestTransposeMatrix(t *testing.T) {
+	vals := [][]float64{
+		{0, 9, 3, 0},
+		{9, 8, 0, 8},
+		{1, 8, 5, 3},
+		{0, 0, 5, 8},
+	}
+	a := matrixConstruct(vals)
+	transpose := matrixTranspose(a)
+	expected := matrixConstruct([][]float64{
+		{0, 9, 1, 0},
+		{9, 8, 8, 0},
+		{3, 0, 5, 5},
+		{0, 8, 3, 8},
+	})
+
+	if !matrixEqual(transpose, expected) {
+		t.Errorf("Expected transpose(%v) to be %v but got %v", a, expected, transpose)
+	}
+}
+
+func TestTransposeIdentityMatrix(t *testing.T) {
+	i := matrixConstructIdentity(4)
+	transpose := matrixTranspose(i)
+
+	if !matrixEqual(transpose, i) {
+		t.Errorf("Expected transpose(%v) to be %v but got %v", i, i, transpose)
+	}
+}

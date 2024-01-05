@@ -77,3 +77,15 @@ func matrixConstructIdentity(n int64) Matrix {
 	}
 	return Matrix{a, n, n}
 }
+
+func matrixTranspose(a Matrix) Matrix {
+	vals := make([][]float64, a.Width)
+	for i := range vals {
+		vals[i] = make([]float64, a.Height)
+		for j := int64(0); j < a.Width; j++ {
+			vals[i][j] = a.Values[j][i]
+		}
+	}
+
+	return Matrix{vals, a.Width, a.Height}
+}
