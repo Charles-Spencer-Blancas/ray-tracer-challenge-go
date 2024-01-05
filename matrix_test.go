@@ -221,3 +221,167 @@ func TestTransposeIdentityMatrix(t *testing.T) {
 		t.Errorf("Expected transpose(%v) to be %v but got %v", i, i, transpose)
 	}
 }
+
+func TestDeterminant2x2Matrix(t *testing.T) {
+	a := matrixConstruct([][]float64{
+		{1, 5},
+		{-3, 2},
+	})
+	det, err := matrix2x2Determinant(a)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !floatEqual(det, 17) {
+		t.Errorf("Expected det(%v) to be %f but got %f", a, 17., det)
+	}
+}
+
+func TestMinorOf3x3(t *testing.T) {
+	a := matrixConstruct([][]float64{
+		{3, 5, 0},
+		{2, -1, -7},
+		{6, -1, 5},
+	})
+	b, err := matrixSubmatrix(a, 1, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	det, err := matrix2x2Determinant(b)
+	if err != nil {
+		t.Fatal(err)
+	}
+	minor, err := matrix3x3Minor(a, 1, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !floatEqual(det, 25) {
+		t.Errorf("Expected det(%v) to be %f but got %f", b, 25.0, det)
+	}
+	if !floatEqual(minor, 25) {
+		t.Errorf("Expected minor(%v, 1, 0) to be %f but got %f", a, 25.0, minor)
+	}
+}
+
+func TestCofactorOf3x3(t *testing.T) {
+	a := matrixConstruct([][]float64{
+		{3, 5, 0},
+		{2, -1, -7},
+		{6, -1, 5},
+	})
+
+	minorA00, err := matrix3x3Minor(a, 0, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !floatEqual(minorA00, -12) {
+		t.Errorf("Expected minor(%v, 0, 0) to be %f but got %f", a, -12., minorA00)
+	}
+
+	cofactorA00, err := matrixCofactor(a, 0, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !floatEqual(cofactorA00, -12) {
+		t.Errorf("Expected cofactor(%v, 0, 0) to be %f but got %f", a, -12., cofactorA00)
+	}
+
+	minorA10, err := matrix3x3Minor(a, 1, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !floatEqual(minorA10, 25) {
+		t.Errorf("Expected minor(%v, 1, 0) to be %f but got %f", a, 25., minorA00)
+	}
+
+	cofactorA10, err := matrixCofactor(a, 1, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !floatEqual(cofactorA10, -25) {
+		t.Errorf("Expected cofactor(%v, 1, 0) to be %f but got %f", a, -25., cofactorA10)
+	}
+}
+
+func TestDeterminant3x3Matrix(t *testing.T) {
+	a := matrixConstruct([][]float64{
+		{1, 2, 6},
+		{-5, 8, -4},
+		{2, 6, 4},
+	})
+
+	a00, err := matrixCofactor(a, 0, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !floatEqual(a00, 56) {
+		t.Errorf("Expected cofactor(%v, 0, 0) to be 56 but got %f", a, a00)
+	}
+
+	a01, err := matrixCofactor(a, 0, 1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !floatEqual(a01, 12) {
+		t.Errorf("Expected cofactor(%v, 0, 1) to be 12 but got %f", a, a01)
+	}
+
+	a02, err := matrixCofactor(a, 0, 2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !floatEqual(a02, -46) {
+		t.Errorf("Expected cofactor(%v, 0, 2) to be -46 but got %f", a, a02)
+	}
+
+	det, err := matrixDeterminant(a)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !floatEqual(det, -196) {
+		t.Errorf("Expected det(%v) to be -196 but got %f", a, det)
+	}
+}
+
+func TestDeterminant4x4Matrix(t *testing.T) {
+	a := matrixConstruct([][]float64{
+		{-2, -8, 3, 5},
+		{-3, 1, 7, 3},
+		{1, 2, -9, 6},
+		{-6, 7, 7, -9},
+	})
+
+	a00, err := matrixCofactor(a, 0, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !floatEqual(a00, 56) {
+		t.Errorf("Expected cofactor(%v, 0, 0) to be 56 but got %f", a, a00)
+	}
+
+	a01, err := matrixCofactor(a, 0, 1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !floatEqual(a01, 12) {
+		t.Errorf("Expected cofactor(%v, 0, 1) to be 12 but got %f", a, a01)
+	}
+
+	a02, err := matrixCofactor(a, 0, 2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !floatEqual(a02, -46) {
+		t.Errorf("Expected cofactor(%v, 0, 2) to be -46 but got %f", a, a02)
+	}
+
+	det, err := matrixDeterminant(a)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !floatEqual(det, -196) {
+		t.Errorf("Expected det(%v) to be -196 but got %f", a, det)
+	}
+}

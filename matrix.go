@@ -89,3 +89,94 @@ func matrixTranspose(a Matrix) Matrix {
 
 	return Matrix{vals, a.Width, a.Height}
 }
+
+func matrix2x2Determinant(a Matrix) (float64, error) {
+	if a.Height != 2 || a.Width != 2 {
+		return 0, fmt.Errorf("can only compute for 2 x 2 matrix but got %d x %d", a.Height, a.Width)
+	}
+	vals := a.Values
+
+	return vals[0][0]*vals[1][1] - vals[0][1]*vals[1][0], nil
+}
+
+func matrixSubmatrix(a Matrix, row int64, col int64) (Matrix, error) {
+	if a.Height == 1 || a.Width == 1 {
+		return Matrix{[][]float64{}, 0, 0}, nil
+	}
+
+	if row < 0 || row >= a.Height {
+		return Matrix{}, fmt.Errorf("row %d is invalid, pick a row in range [0, %d]", row, a.Height-1)
+	}
+	if col < 0 || col >= a.Width {
+		return Matrix{}, fmt.Errorf("column %d is invalid, pick a column in range [0, %d]", row, a.Width-1)
+	}
+
+	h := a.Height - 1
+	w := a.Width - 1
+
+	out := make([][]float64, h)
+
+	rowTrack := 0
+	r := int(row)
+	c := int(col)
+	for i := range a.Values {
+		if i == r {
+			continue
+		}
+		colTrack := 0
+		out[rowTrack] = make([]float64, w)
+		for j := range a.Values {
+			if j == c {
+				continue
+			}
+			out[rowTrack][colTrack] = a.Values[i][j]
+			colTrack += 1
+		}
+		rowTrack += 1
+	}
+
+	return Matrix{out, h, w}, nil
+}
+
+func matrix3x3Minor(a Matrix, row int64, col int64) (float64, error) {
+	if a.Height != 3 || a.Width != 3 {
+		return 0, fmt.Errorf("can only compute for 3 x 3 matrix but got %d x %d", a.Height, a.Width)
+	}
+
+	minor, err := matrixSubmatrix(a, row, col)
+	if err != nil {
+		return 0, err
+	}
+
+	return matrix2x2Determinant(minor)
+}
+
+func matrixCofactor(a Matrix, row int64, col int64) (float64, error) {
+	minor, err := matrix3x3Minor(a, row, col)
+	if err != nil {
+		return 0, err
+	}
+
+	if (row+col)%2 == 1 {
+		return -minor, nil
+	}
+
+	return minor, nil
+}
+
+func matrixDeterminant(a Matrix) (float64, error) {
+	if a.Height == 2 && a.Width == 2 {
+		return matrix2x2Determinant(a)
+	}
+
+	det := 0.0
+	for col := range a.Values {
+		cof, err := matrixCofactor(a, 0, int64(col))
+		if err != nil {
+			return 0, err
+		}
+		det += a.Values[0][col] * cof
+	}
+
+	return det, nil
+}
