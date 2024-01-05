@@ -440,7 +440,7 @@ func TestNonInvertibleMatrixIsNotInvertible(t *testing.T) {
 	}
 }
 
-func TestInvertMatrix(t *testing.T) {
+func TestInverseMatrix(t *testing.T) {
 	a := matrixConstruct([][]float64{
 		{-5, 2, 6, -8},
 		{1, -5, 1, 8},
@@ -490,5 +490,46 @@ func TestInvertMatrix(t *testing.T) {
 	})
 	if !matrixEqual(b, expected) {
 		t.Errorf("Expected %v to be equal to %v but they are not", b, expected)
+	}
+}
+
+func TestInverseMatrixMore(t *testing.T) {
+	matrices := []Matrix{
+		matrixConstruct([][]float64{
+			{8, -5, 9, 2},
+			{7, 5, 6, 1},
+			{-6, 0, 9, 6},
+			{-3, 0, -9, -4},
+		}),
+		matrixConstruct([][]float64{
+			{9, 3, 0, 9},
+			{-5, -2, -6, -3},
+			{-4, 9, 6, 4},
+			{-7, 6, 6, 2},
+		}),
+	}
+	expected := []Matrix{
+		matrixConstruct([][]float64{
+			{-0.15385, -0.15385, -0.28205, -0.53846},
+			{-0.07692, 0.12308, 0.02564, 0.03077},
+			{0.35897, 0.35897, 0.43590, 0.92308},
+			{-0.69231, -0.69231, -0.76923, -1.92308},
+		}),
+		matrixConstruct([][]float64{
+			{-0.04074, -0.07778, 0.14444, -0.22222},
+			{-0.07778, 0.03333, 0.36667, -0.33333},
+			{-0.02901, -0.14630, -0.10926, 0.12963},
+			{0.17778, 0.06667, -0.26667, 0.33333},
+		}),
+	}
+
+	for i := range matrices {
+		inv, err := matrixInverse(matrices[i])
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !matrixEqual(inv, expected[i]) {
+			t.Errorf("Expected inv(%v) to be %v but got %v", matrices[i], expected[i], inv)
+		}
 	}
 }
