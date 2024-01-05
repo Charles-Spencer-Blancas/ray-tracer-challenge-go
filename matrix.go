@@ -138,21 +138,17 @@ func matrixSubmatrix(a Matrix, row int64, col int64) (Matrix, error) {
 	return Matrix{out, h, w}, nil
 }
 
-func matrix3x3Minor(a Matrix, row int64, col int64) (float64, error) {
-	if a.Height != 3 || a.Width != 3 {
-		return 0, fmt.Errorf("can only compute for 3 x 3 matrix but got %d x %d", a.Height, a.Width)
-	}
-
+func matrixMinor(a Matrix, row int64, col int64) (float64, error) {
 	minor, err := matrixSubmatrix(a, row, col)
 	if err != nil {
 		return 0, err
 	}
 
-	return matrix2x2Determinant(minor)
+	return matrixDeterminant(minor)
 }
 
 func matrixCofactor(a Matrix, row int64, col int64) (float64, error) {
-	minor, err := matrix3x3Minor(a, row, col)
+	minor, err := matrixMinor(a, row, col)
 	if err != nil {
 		return 0, err
 	}

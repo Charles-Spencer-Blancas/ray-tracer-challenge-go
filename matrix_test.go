@@ -250,7 +250,7 @@ func TestMinorOf3x3(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	minor, err := matrix3x3Minor(a, 1, 0)
+	minor, err := matrixMinor(a, 1, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -270,7 +270,7 @@ func TestCofactorOf3x3(t *testing.T) {
 		{6, -1, 5},
 	})
 
-	minorA00, err := matrix3x3Minor(a, 0, 0)
+	minorA00, err := matrixMinor(a, 0, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -286,7 +286,7 @@ func TestCofactorOf3x3(t *testing.T) {
 		t.Errorf("Expected cofactor(%v, 0, 0) to be %f but got %f", a, -12., cofactorA00)
 	}
 
-	minorA10, err := matrix3x3Minor(a, 1, 0)
+	minorA10, err := matrixMinor(a, 1, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -356,24 +356,32 @@ func TestDeterminant4x4Matrix(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !floatEqual(a00, 56) {
-		t.Errorf("Expected cofactor(%v, 0, 0) to be 56 but got %f", a, a00)
+	if !floatEqual(a00, 690) {
+		t.Errorf("Expected cofactor(%v, 0, 0) to be 690 but got %f", a, a00)
 	}
 
 	a01, err := matrixCofactor(a, 0, 1)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !floatEqual(a01, 12) {
-		t.Errorf("Expected cofactor(%v, 0, 1) to be 12 but got %f", a, a01)
+	if !floatEqual(a01, 447) {
+		t.Errorf("Expected cofactor(%v, 0, 1) to be 447 but got %f", a, a01)
 	}
 
 	a02, err := matrixCofactor(a, 0, 2)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !floatEqual(a02, -46) {
-		t.Errorf("Expected cofactor(%v, 0, 2) to be -46 but got %f", a, a02)
+	if !floatEqual(a02, 210) {
+		t.Errorf("Expected cofactor(%v, 0, 2) to be 210 but got %f", a, a02)
+	}
+
+	a03, err := matrixCofactor(a, 0, 3)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !floatEqual(a03, 51) {
+		t.Errorf("Expected cofactor(%v, 0, 2) to be 51 but got %f", a, a03)
 	}
 
 	det, err := matrixDeterminant(a)
@@ -381,7 +389,7 @@ func TestDeterminant4x4Matrix(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if !floatEqual(det, -196) {
-		t.Errorf("Expected det(%v) to be -196 but got %f", a, det)
+	if !floatEqual(det, -4071) {
+		t.Errorf("Expected det(%v) to be -4071 but got %f", a, det)
 	}
 }
