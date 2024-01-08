@@ -184,6 +184,18 @@ func TestHitLowestNonNegative(t *testing.T) {
 	xs := intersections(i1, i2, i3, i4)
 	i := hit(xs)
 	if i != i4 {
-		t.Errorf("Expected %v to be blank", i)
+		t.Errorf("Expected hit to be %v but it is %v", i4, i)
+	}
+}
+
+func TestIntersectionsIsSorted(t *testing.T) {
+	s := sphere()
+	i1 := Intersection{5, s}
+	i2 := Intersection{7, s}
+	i3 := Intersection{-3, s}
+	i4 := Intersection{2, s}
+	xs := intersections(i1, i2, i3, i4)
+	if xs[0] != i3 || xs[1] != i4 || xs[2] != i1 || xs[3] != i2 {
+		t.Errorf("Expected %v to be sorted", xs)
 	}
 }
