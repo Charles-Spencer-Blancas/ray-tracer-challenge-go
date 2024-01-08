@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math"
+	"sort"
 )
 
 type Ray struct {
@@ -58,29 +59,23 @@ func intersect(s Sphere, r Ray) []Intersection {
 	return []Intersection{{t1, s}, {t2, s}}
 }
 
+// Returns sorted intersections
 func intersections(ts ...Intersection) []Intersection {
 	arr := make([]Intersection, len(ts))
 	copy(arr, ts)
+	sort.Slice(arr, func(i, j int) bool { return arr[i].t < arr[j].t })
 	return arr
 }
 
+// Relies on intersections being sorted
 func hit(is []Intersection) Intersection {
-	init := false
-	out := Intersection{}
 	for _, i := range is {
 		if i.t < 0.0 {
 			continue
 		}
 
-		if !init {
-			out = i
-			continue
-		}
-
-		if i.t < out.t {
-			out = i
-		}
+		return i
 	}
 
-	return out
+	return Intersection{}
 }
