@@ -65,9 +65,15 @@ func intersections(ts ...Intersection) []Intersection {
 }
 
 func hit(is []Intersection) Intersection {
+	init := false
 	out := Intersection{}
 	for _, i := range is {
 		if i.t < 0.0 {
+			continue
+		}
+
+		if !init {
+			out = i
 			continue
 		}
 

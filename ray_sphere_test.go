@@ -174,3 +174,16 @@ func TestHitNegativeT(t *testing.T) {
 		t.Errorf("Expected %v to be blank", i)
 	}
 }
+
+func TestHitLowestNonNegative(t *testing.T) {
+	s := sphere()
+	i1 := Intersection{5, s}
+	i2 := Intersection{7, s}
+	i3 := Intersection{-3, s}
+	i4 := Intersection{2, s}
+	xs := intersections(i1, i2, i3, i4)
+	i := hit(xs)
+	if i != i4 {
+		t.Errorf("Expected %v to be blank", i)
+	}
+}
