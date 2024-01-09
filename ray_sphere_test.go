@@ -199,3 +199,37 @@ func TestIntersectionsIsSorted(t *testing.T) {
 		t.Errorf("Expected %v to be sorted", xs)
 	}
 }
+
+func TestTranslateRay(t *testing.T) {
+	r, err := ray(point(1, 2, 3), vector(0, 1, 0))
+	if err != nil {
+		t.Fatal(err)
+	}
+	m := translation(3, 4, 5)
+	r2, err := rayMatrixTransform(r, m)
+	if err != nil {
+		t.Fatal(err)
+	}
+	expected := Ray{point(4, 6, 8), vector(0, 1, 0)}
+
+	if r2 != expected {
+		t.Errorf("Expected %v to be %v", r2, expected)
+	}
+}
+
+func TestScaleRay(t *testing.T) {
+	r, err := ray(point(1, 2, 3), vector(0, 1, 0))
+	if err != nil {
+		t.Fatal(err)
+	}
+	m := scaling(2, 3, 4)
+	r2, err := rayMatrixTransform(r, m)
+	if err != nil {
+		t.Fatal(err)
+	}
+	expected := Ray{point(2, 6, 12), vector(0, 3, 0)}
+
+	if r2 != expected {
+		t.Errorf("Expected %v to be %v", r2, expected)
+	}
+}

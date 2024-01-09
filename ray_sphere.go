@@ -79,3 +79,21 @@ func hit(is []Intersection) Intersection {
 
 	return Intersection{}
 }
+
+func rayMatrixTransform(r Ray, m Matrix) (Ray, error) {
+	r, err := ray(point(1, 2, 3), vector(0, 1, 0))
+	if err != nil {
+		return Ray{}, err
+	}
+
+	origin, err := matrix4x4TupleMultiply(m, r.Origin)
+	if err != nil {
+		return Ray{}, err
+	}
+	dir, err := matrix4x4TupleMultiply(m, r.Direction)
+	if err != nil {
+		return Ray{}, err
+	}
+
+	return Ray{origin, dir}, err
+}
