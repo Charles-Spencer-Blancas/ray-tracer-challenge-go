@@ -37,7 +37,7 @@ func TestComputePointFromDistance(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		out := position(r, c.t)
+		out := rayPosition(r, c.t)
 
 		if !tupleEqual(out, c.expected) {
 			t.Errorf("Expected position(%v, %f) to be %v but got %v", r, c.t, c.expected, out)
@@ -51,7 +51,7 @@ func TestRayIntersectsSphereAtTwoPoints(t *testing.T) {
 		t.Fatal(err)
 	}
 	s := sphere()
-	xs := intersect(s, r)
+	xs := sphereRayIntersect(s, r)
 
 	if len(xs) != 2 || xs[0].t != 4.0 || xs[1].t != 6.0 {
 		t.Errorf("Expected %v to be [4.0, 6.0] but it is not", xs)
@@ -64,7 +64,7 @@ func TestRayIntersectsSphereAtTangent(t *testing.T) {
 		t.Fatal(err)
 	}
 	s := sphere()
-	xs := intersect(s, r)
+	xs := sphereRayIntersect(s, r)
 
 	if len(xs) != 2 || xs[0].t != 5.0 || xs[1].t != 5.0 {
 		t.Errorf("Expected %v to be [5.0, 5.0] but it is not", xs)
@@ -77,7 +77,7 @@ func TestRayMissesSphere(t *testing.T) {
 		t.Fatal(err)
 	}
 	s := sphere()
-	xs := intersect(s, r)
+	xs := sphereRayIntersect(s, r)
 
 	if len(xs) != 0 {
 		t.Errorf("Expected %v to be [] but it is not", xs)
@@ -90,7 +90,7 @@ func TestRayOriginatesInsideSphere(t *testing.T) {
 		t.Fatal(err)
 	}
 	s := sphere()
-	xs := intersect(s, r)
+	xs := sphereRayIntersect(s, r)
 
 	if len(xs) != 2 || xs[0].t != -1.0 || xs[1].t != 1.0 {
 		t.Errorf("Expected %v to be [-1.0, 1.0] but it is not", xs)
@@ -103,7 +103,7 @@ func TestRayIntersectsIsInFrontOfSphere(t *testing.T) {
 		t.Fatal(err)
 	}
 	s := sphere()
-	xs := intersect(s, r)
+	xs := sphereRayIntersect(s, r)
 
 	if len(xs) != 2 || xs[0].t != -6.0 || xs[1].t != -4.0 {
 		t.Errorf("Expected %v to be [-6.0, -4.0] but it is not", xs)
@@ -136,7 +136,7 @@ func TestIntersectSetsObjectOnIntersection(t *testing.T) {
 		t.Fatal(err)
 	}
 	s := sphere()
-	xs := intersect(s, r)
+	xs := sphereRayIntersect(s, r)
 	if len(xs) != 2 || xs[0].Object != s || xs[1].Object != s {
 		t.Errorf("Object is not set: %v", xs)
 	}

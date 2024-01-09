@@ -32,7 +32,7 @@ func ray(origin Tuple, direction Tuple) (Ray, error) {
 	return Ray{origin, direction}, nil
 }
 
-func position(ray Ray, t float64) Tuple {
+func rayPosition(ray Ray, t float64) Tuple {
 	return tupleAdd(ray.Origin, tupleScale(ray.Direction, t))
 }
 
@@ -40,7 +40,7 @@ func sphere() Sphere {
 	return Sphere{point(0, 0, 0), 1.}
 }
 
-func intersect(s Sphere, r Ray) []Intersection {
+func sphereRayIntersect(s Sphere, r Ray) []Intersection {
 	sphereToRay := tupleSubtract(r.Origin, s.Origin)
 
 	a := vectorDot(r.Direction, r.Direction)
