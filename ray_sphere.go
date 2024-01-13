@@ -41,7 +41,15 @@ func sphere() Sphere {
 	return Sphere{matrixConstructIdentity(4), point(0, 0, 0), 1.}
 }
 
-func sphereRayIntersect(s Sphere, r Ray) []Intersection {
+func sphereRayIntersect(s Sphere, r Ray) ([]Intersection, error) {
+	t, err := matrixInverse(s.Transform)
+	if err != nil {
+		return []Intersection{}, err
+	}
+	r, err = rayMatrixTransform(r, t)
+	if err != nil {
+		return []Intersection{}, err
+	}
 	sphereToRay := tupleSubtract(r.Origin, s.Origin)
 
 	a := vectorDot(r.Direction, r.Direction)
@@ -51,13 +59,13 @@ func sphereRayIntersect(s Sphere, r Ray) []Intersection {
 	disc := b*b - 4*a*c
 
 	if disc < 0 {
-		return []Intersection{}
+		return []Intersection{}, nil
 	}
 
 	t1 := (-b - math.Sqrt(disc)) / (2 * a)
 	t2 := (-b + math.Sqrt(disc)) / (2 * a)
 
-	return []Intersection{{s, t1}, {s, t2}}
+	return []Intersection{{s, t1}, {s, t2}}, nil
 }
 
 // Returns sorted intersections
@@ -82,11 +90,6 @@ func hit(is []Intersection) Intersection {
 }
 
 func rayMatrixTransform(r Ray, m Matrix) (Ray, error) {
-	r, err := ray(point(1, 2, 3), vector(0, 1, 0))
-	if err != nil {
-		return Ray{}, err
-	}
-
 	origin, err := matrix4x4TupleMultiply(m, r.Origin)
 	if err != nil {
 		return Ray{}, err

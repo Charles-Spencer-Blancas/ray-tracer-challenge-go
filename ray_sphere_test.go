@@ -54,7 +54,10 @@ func TestRayIntersectsSphereAtTwoPoints(t *testing.T) {
 		t.Fatal(err)
 	}
 	s := sphere()
-	xs := sphereRayIntersect(s, r)
+	xs, err := sphereRayIntersect(s, r)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	if len(xs) != 2 || xs[0].t != 4.0 || xs[1].t != 6.0 {
 		t.Errorf("Expected %v to be [4.0, 6.0] but it is not", xs)
@@ -67,7 +70,10 @@ func TestRayIntersectsSphereAtTangent(t *testing.T) {
 		t.Fatal(err)
 	}
 	s := sphere()
-	xs := sphereRayIntersect(s, r)
+	xs, err := sphereRayIntersect(s, r)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	if len(xs) != 2 || xs[0].t != 5.0 || xs[1].t != 5.0 {
 		t.Errorf("Expected %v to be [5.0, 5.0] but it is not", xs)
@@ -80,7 +86,10 @@ func TestRayMissesSphere(t *testing.T) {
 		t.Fatal(err)
 	}
 	s := sphere()
-	xs := sphereRayIntersect(s, r)
+	xs, err := sphereRayIntersect(s, r)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	if len(xs) != 0 {
 		t.Errorf("Expected %v to be [] but it is not", xs)
@@ -93,7 +102,10 @@ func TestRayOriginatesInsideSphere(t *testing.T) {
 		t.Fatal(err)
 	}
 	s := sphere()
-	xs := sphereRayIntersect(s, r)
+	xs, err := sphereRayIntersect(s, r)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	if len(xs) != 2 || xs[0].t != -1.0 || xs[1].t != 1.0 {
 		t.Errorf("Expected %v to be [-1.0, 1.0] but it is not", xs)
@@ -106,7 +118,10 @@ func TestRayIntersectsIsInFrontOfSphere(t *testing.T) {
 		t.Fatal(err)
 	}
 	s := sphere()
-	xs := sphereRayIntersect(s, r)
+	xs, err := sphereRayIntersect(s, r)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	if len(xs) != 2 || xs[0].t != -6.0 || xs[1].t != -4.0 {
 		t.Errorf("Expected %v to be [-6.0, -4.0] but it is not", xs)
@@ -139,7 +154,10 @@ func TestIntersectSetsObjectOnIntersection(t *testing.T) {
 		t.Fatal(err)
 	}
 	s := sphere()
-	xs := sphereRayIntersect(s, r)
+	xs, err := sphereRayIntersect(s, r)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if len(xs) != 2 || !reflect.DeepEqual(xs[0].Object, s) || !reflect.DeepEqual(xs[1].Object, s) {
 		t.Errorf("Object is not set: %v", xs)
 	}
@@ -234,5 +252,39 @@ func TestScaleRay(t *testing.T) {
 
 	if r2 != expected {
 		t.Errorf("Expected %v to be %v", r2, expected)
+	}
+}
+
+func TestSphereDefaultTransform(t *testing.T) {
+	s := sphere()
+
+	if !matrixEqual(s.Transform, matrixConstructIdentity(4)) {
+		t.Errorf("Expected transform to be %v but got %v", s.Transform, matrixConstructIdentity(4))
+	}
+}
+
+func TestChangeSphere(t *testing.T) {
+	s := sphere()
+	tr := translation(2, 3, 4)
+
+	s.Transform = tr
+	if !matrixEqual(s.Transform, tr) {
+		t.Errorf("Expected transform to be %v but got %v", s.Transform, tr)
+	}
+}
+
+func TestScaledSphereWithRay(t *testing.T) {
+	r, err := ray(point(0, 0, -5), vector(0, 0, 1))
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := sphere()
+	s.Transform = scaling(2, 2, 2)
+	xs, err := sphereRayIntersect(s, r)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(xs) != 2 || !floatEqual(xs[0].t, 3) || !floatEqual(xs[1].t, 7) {
+		t.Errorf("Expected the ts to be [3, 7] but got [%f %f]", xs[0].t, xs[1].t)
 	}
 }
