@@ -1,9 +1,8 @@
 package main
 
 import (
-	"fmt"
-	"math"
 	"os"
+	"reflect"
 )
 
 type Projectile struct {
@@ -48,30 +47,55 @@ func writePixel9x9(c Canvas, x int64, y int64, col Color) {
 }
 
 func main() {
+	canvasSize := int64(300)
+	source := point(0, 0, -5)
+	wallZ := float64(10)
+	wallSize := int64(7)
+	pixelSize := float64(wallSize) / float64(canvasSize)
+	half := float64(wallSize) / 2.
+
 	color := Color{1, 0, 0}
-	c := canvas(1000, 1000)
-	radius := 400.
+	c := canvas(canvasSize, canvasSize)
+	s := sphere()
+	t, err := transformation(shearing(0.2, 0, 0.5, 0.2, 0.2, 0.1), scaling(0.2, 0.3, 1.2), translation(1, 1, 2))
+	if err != nil {
+		os.Exit(-1)
+	}
+	s.Transform = t
 
-	origin := point(0, 0, 0)
-	moveOriginToTwelve := translation(0, -radius, 0)
-	moveOriginToCenter := translation(499, 499, 0)
+	s2 := sphere()
 
-	for i := 0; i < 12; i++ {
-		t, err := transformation(
-			moveOriginToTwelve,
-			rotation_z(float64(i)*math.Pi/6.),
-			moveOriginToCenter)
-		if err != nil {
-			os.Exit(1)
+	// Loop through canvas pixels, but transform to world coords
+	for y := int64(0); y < canvasSize; y++ {
+		worldY := half - pixelSize*float64(y)
+
+		for x := int64(0); x < canvasSize; x++ {
+			worldX := -half + pixelSize*float64(x)
+
+			pos := point(float64(worldX), float64(worldY), wallZ)
+			ray, err := ray(source, vectorNormalize(tupleSubtract(pos, source)))
+			if err != nil {
+				os.Exit(-1)
+			}
+
+			xs, err := sphereRayIntersect(s, ray)
+			if err != nil {
+				os.Exit(-1)
+			}
+			if !reflect.DeepEqual(hit(xs), Intersection{}) {
+				writePixel(c, x, y, color)
+			}
+
+			xs, err = sphereRayIntersect(s2, ray)
+			if err != nil {
+				os.Exit(-1)
+			}
+			if !reflect.DeepEqual(hit(xs), Intersection{}) {
+				writePixel(c, x, y, color)
+			}
 		}
-		p, err := matrix4x4TupleMultiply(t, origin)
-		if err != nil {
-			os.Exit(1)
-		}
-		fmt.Printf("%d: %v\n", i, p)
-		writePixel9x9(c, int64(p.X), int64(p.Y), color)
 	}
 
 	ppm := canvasToPPM(c)
-	os.WriteFile("clock.ppm", []byte(ppm), 0644)
+	os.WriteFile("wall.ppm", []byte(ppm), 0644)
 }
