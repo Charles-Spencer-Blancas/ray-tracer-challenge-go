@@ -288,3 +288,19 @@ func TestScaledSphereWithRay(t *testing.T) {
 		t.Errorf("Expected the ts to be [3, 7] but got [%f %f]", xs[0].t, xs[1].t)
 	}
 }
+
+func TestTranslatedSphereWithRay(t *testing.T) {
+	r, err := ray(point(0, 0, -5), vector(0, 0, 1))
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := sphere()
+	s.Transform = translation(5, 0, 0)
+	xs, err := sphereRayIntersect(s, r)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(xs) != 0 {
+		t.Errorf("Expected ray to miss sphere but intersects, %v", xs)
+	}
+}
