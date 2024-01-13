@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+)
 
 func TestCreateRay(t *testing.T) {
 	o := point(1, 2, 3)
@@ -112,16 +115,16 @@ func TestRayIntersectsIsInFrontOfSphere(t *testing.T) {
 
 func TestIntersectionEncapsulatesTAndObject(t *testing.T) {
 	s := sphere()
-	i := Intersection{3.5, s}
-	if !floatEqual(i.t, 3.5) || i.Object != s {
-		t.Errorf("Expected %v but got %v", Intersection{3.5, s}, i)
+	i := Intersection{s, 3.5}
+	if !floatEqual(i.t, 3.5) || !reflect.DeepEqual(i.Object, s) {
+		t.Errorf("Expected %v but got %v", Intersection{s, 3.5}, i)
 	}
 }
 
 func TestAggregateIntersections(t *testing.T) {
 	s := sphere()
-	i1 := Intersection{1, s}
-	i2 := Intersection{2, s}
+	i1 := Intersection{s, 1}
+	i2 := Intersection{s, 2}
 
 	xs := intersections(i1, i2)
 
@@ -137,65 +140,65 @@ func TestIntersectSetsObjectOnIntersection(t *testing.T) {
 	}
 	s := sphere()
 	xs := sphereRayIntersect(s, r)
-	if len(xs) != 2 || xs[0].Object != s || xs[1].Object != s {
+	if len(xs) != 2 || !reflect.DeepEqual(xs[0].Object, s) || !reflect.DeepEqual(xs[1].Object, s) {
 		t.Errorf("Object is not set: %v", xs)
 	}
 }
 
 func TestHitPositiveT(t *testing.T) {
 	s := sphere()
-	i1 := Intersection{1, s}
-	i2 := Intersection{2, s}
+	i1 := Intersection{s, 1}
+	i2 := Intersection{s, 2}
 	xs := intersections(i2, i1)
 	i := hit(xs)
-	if i1 != i {
+	if !reflect.DeepEqual(i1, i) {
 		t.Errorf("Expected hit to be %v but it is %v", i1, i)
 	}
 }
 
 func TestHitPositiveAndNegative(t *testing.T) {
 	s := sphere()
-	i1 := Intersection{-1, s}
-	i2 := Intersection{1, s}
+	i1 := Intersection{s, -1}
+	i2 := Intersection{s, 1}
 	xs := intersections(i2, i1)
 	i := hit(xs)
-	if i2 != i {
+	if !reflect.DeepEqual(i2, i) {
 		t.Errorf("Expected hit to be %v but it is %v", i2, i)
 	}
 }
 
 func TestHitNegativeT(t *testing.T) {
 	s := sphere()
-	i1 := Intersection{-1, s}
-	i2 := Intersection{-2, s}
+	i1 := Intersection{s, -1}
+	i2 := Intersection{s, -2}
 	xs := intersections(i2, i1)
 	i := hit(xs)
-	if i != (Intersection{}) {
+	if !reflect.DeepEqual(i, (Intersection{})) {
 		t.Errorf("Expected %v to be blank", i)
 	}
 }
 
 func TestHitLowestNonNegative(t *testing.T) {
 	s := sphere()
-	i1 := Intersection{5, s}
-	i2 := Intersection{7, s}
-	i3 := Intersection{-3, s}
-	i4 := Intersection{2, s}
+	i1 := Intersection{s, 5}
+	i2 := Intersection{s, 7}
+	i3 := Intersection{s, -3}
+	i4 := Intersection{s, 2}
 	xs := intersections(i1, i2, i3, i4)
 	i := hit(xs)
-	if i != i4 {
+	if !reflect.DeepEqual(i, i4) {
 		t.Errorf("Expected hit to be %v but it is %v", i4, i)
 	}
 }
 
 func TestIntersectionsIsSorted(t *testing.T) {
 	s := sphere()
-	i1 := Intersection{5, s}
-	i2 := Intersection{7, s}
-	i3 := Intersection{-3, s}
-	i4 := Intersection{2, s}
+	i1 := Intersection{s, 5}
+	i2 := Intersection{s, 7}
+	i3 := Intersection{s, -3}
+	i4 := Intersection{s, 2}
 	xs := intersections(i1, i2, i3, i4)
-	if xs[0] != i3 || xs[1] != i4 || xs[2] != i1 || xs[3] != i2 {
+	if !reflect.DeepEqual(xs[0], i3) || !reflect.DeepEqual(xs[1], i4) || !reflect.DeepEqual(xs[2], i1) || !reflect.DeepEqual(xs[3], i2) {
 		t.Errorf("Expected %v to be sorted", xs)
 	}
 }

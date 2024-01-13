@@ -12,13 +12,14 @@ type Ray struct {
 }
 
 type Sphere struct {
-	Origin Tuple
-	Radius float64
+	Transform Matrix
+	Origin    Tuple
+	Radius    float64
 }
 
 type Intersection struct {
-	t      float64
 	Object Sphere
+	t      float64
 }
 
 func ray(origin Tuple, direction Tuple) (Ray, error) {
@@ -37,7 +38,7 @@ func rayPosition(ray Ray, t float64) Tuple {
 }
 
 func sphere() Sphere {
-	return Sphere{point(0, 0, 0), 1.}
+	return Sphere{matrixConstructIdentity(4), point(0, 0, 0), 1.}
 }
 
 func sphereRayIntersect(s Sphere, r Ray) []Intersection {
@@ -56,7 +57,7 @@ func sphereRayIntersect(s Sphere, r Ray) []Intersection {
 	t1 := (-b - math.Sqrt(disc)) / (2 * a)
 	t2 := (-b + math.Sqrt(disc)) / (2 * a)
 
-	return []Intersection{{t1, s}, {t2, s}}
+	return []Intersection{{s, t1}, {s, t2}}
 }
 
 // Returns sorted intersections
