@@ -20,7 +20,7 @@ func scaling(x float64, y float64, z float64) Matrix {
 	return id
 }
 
-func rotation_x(rads float64) Matrix {
+func rotationX(rads float64) Matrix {
 	id := matrixConstructIdentity(4)
 
 	id.Values[1][1] = math.Cos(rads)
@@ -31,7 +31,7 @@ func rotation_x(rads float64) Matrix {
 	return id
 }
 
-func rotation_y(rads float64) Matrix {
+func rotationY(rads float64) Matrix {
 	id := matrixConstructIdentity(4)
 
 	id.Values[0][0] = math.Cos(rads)
@@ -42,7 +42,7 @@ func rotation_y(rads float64) Matrix {
 	return id
 }
 
-func rotation_z(rads float64) Matrix {
+func rotationZ(rads float64) Matrix {
 	id := matrixConstructIdentity(4)
 
 	id.Values[0][0] = math.Cos(rads)

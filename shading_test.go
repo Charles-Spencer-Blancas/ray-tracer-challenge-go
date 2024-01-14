@@ -58,7 +58,7 @@ func TestNormalOnTranslatedSphere(t *testing.T) {
 
 func TestNormalOnTransformedSphere(t *testing.T) {
 	s := sphere()
-	ts, err := matrix4x4Multiply(scaling(1, 0.5, 1), rotation_z(math.Pi/5.))
+	ts, err := matrix4x4Multiply(scaling(1, 0.5, 1), rotationZ(math.Pi/5.))
 	if err != nil {
 		t.Fatal(err)
 	}

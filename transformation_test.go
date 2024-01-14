@@ -119,8 +119,8 @@ func TestReflectingIsScalingByNegative(t *testing.T) {
 }
 
 func TestRotateAroundX(t *testing.T) {
-	halfQuarter := rotation_x(math.Pi / 4)
-	fullQuarter := rotation_x(math.Pi / 2)
+	halfQuarter := rotationX(math.Pi / 4)
+	fullQuarter := rotationX(math.Pi / 2)
 	p := point(0, 1, 0)
 
 	translatedHalf, err := matrix4x4TupleMultiply(halfQuarter, p)
@@ -147,7 +147,7 @@ func TestRotateAroundX(t *testing.T) {
 }
 
 func TestInverseXRotation(t *testing.T) {
-	init := rotation_x(math.Pi / 4)
+	init := rotationX(math.Pi / 4)
 	transform, err := matrixInverse(init)
 	if err != nil {
 		t.Fatal(err)
@@ -167,8 +167,8 @@ func TestInverseXRotation(t *testing.T) {
 }
 
 func TestRotateAroundY(t *testing.T) {
-	halfQuarter := rotation_y(math.Pi / 4)
-	fullQuarter := rotation_y(math.Pi / 2)
+	halfQuarter := rotationY(math.Pi / 4)
+	fullQuarter := rotationY(math.Pi / 2)
 	p := point(0, 0, 1)
 
 	translatedHalf, err := matrix4x4TupleMultiply(halfQuarter, p)
@@ -195,8 +195,8 @@ func TestRotateAroundY(t *testing.T) {
 }
 
 func TestRotateAroundZ(t *testing.T) {
-	halfQuarter := rotation_z(math.Pi / 4)
-	fullQuarter := rotation_z(math.Pi / 2)
+	halfQuarter := rotationZ(math.Pi / 4)
+	fullQuarter := rotationZ(math.Pi / 2)
 	p := point(0, 1, 0)
 
 	translatedHalf, err := matrix4x4TupleMultiply(halfQuarter, p)
@@ -251,7 +251,7 @@ func TestShearing(t *testing.T) {
 
 func TestMultipleTransformationsInSequence(t *testing.T) {
 	p := point(1, 0, 1)
-	A := rotation_x(math.Pi / 2)
+	A := rotationX(math.Pi / 2)
 	B := scaling(5, 5, 5)
 	C := translation(10, 5, 7)
 
@@ -288,7 +288,7 @@ func TestMultipleTransformationsInSequence(t *testing.T) {
 
 func TestMultipleTransformationsChained(t *testing.T) {
 	p := point(1, 0, 1)
-	A := rotation_x(math.Pi / 2)
+	A := rotationX(math.Pi / 2)
 	B := scaling(5, 5, 5)
 	C := translation(10, 5, 7)
 	expected := point(15, 0, 7)
