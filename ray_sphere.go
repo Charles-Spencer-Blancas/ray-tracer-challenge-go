@@ -73,8 +73,13 @@ func sphereRayIntersect(s Sphere, r Ray) ([]Intersection, error) {
 func intersections(ts ...Intersection) []Intersection {
 	arr := make([]Intersection, len(ts))
 	copy(arr, ts)
-	sort.Slice(arr, func(i, j int) bool { return arr[i].t < arr[j].t })
-	return arr
+	return sortIntersections(arr)
+}
+
+func sortIntersections(ts []Intersection) []Intersection {
+	sort.Slice(ts, func(i, j int) bool { return ts[i].t < ts[j].t })
+
+	return ts
 }
 
 // Relies on intersections being sorted
