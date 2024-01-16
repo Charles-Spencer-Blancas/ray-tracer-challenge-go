@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
 type PointLight struct {
 	Position  Tuple
@@ -49,4 +52,40 @@ func sphereNormalAt(s Sphere, p Tuple) (Tuple, error) {
 func vectorNormalReflect(in Tuple, normal Tuple) Tuple {
 	d := vectorDot(in, normal) * 2
 	return tupleSubtract(in, tupleScale(normal, d))
+}
+
+func lighting(material Material, light PointLight, point Tuple, eyeV Tuple, normalV Tuple) Color {
+	// Blend surface color with light's color
+	effectiveColor := colorBlend(material.Color, light.Intensity)
+
+	// Find direction to light source
+	lightV := vectorNormalize(tupleSubtract(light.Position, point))
+
+	// Compute ambient contribution
+	ambient := colorScale(effectiveColor, material.Ambient)
+
+	// LightDotNormal: Cos of angle between light vector and normal
+	// Negative means light on other side of surface, so just ambient, no diffuse and specular
+	lightDotNormal := vectorDot(lightV, normalV)
+	if lightDotNormal < 0 {
+		return ambient
+	}
+
+	// Compute diffuse contribution
+	diffuse := colorScale(effectiveColor, material.Diffuse*lightDotNormal)
+
+	// ReflectDotEye: Cos of angle between reflection vector and eye vector
+	// Negative means light reflects away from eye
+	// So no specular, just ambient and diffuse
+	reflectV := vectorNormalReflect(tupleNegate(lightV), normalV)
+	reflectDotEye := vectorDot(reflectV, eyeV)
+	if reflectDotEye <= 0 {
+		return colorAdd(ambient, diffuse)
+	}
+
+	// Here, compute specular contribution
+	factor := math.Pow(reflectDotEye, material.Shininess)
+	specular := colorScale(light.Intensity, material.Specular*factor)
+
+	return colorAdd(ambient, colorAdd(diffuse, specular))
 }

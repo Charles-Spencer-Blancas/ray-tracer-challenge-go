@@ -15,6 +15,7 @@ type Sphere struct {
 	Transform Matrix
 	Origin    Tuple
 	Radius    float64
+	Material  Material
 }
 
 type Intersection struct {
@@ -38,7 +39,7 @@ func rayPosition(ray Ray, t float64) Tuple {
 }
 
 func sphere() Sphere {
-	return Sphere{matrixConstructIdentity(4), point(0, 0, 0), 1.}
+	return Sphere{matrixConstructIdentity(4), point(0, 0, 0), 1., material()}
 }
 
 func sphereRayIntersect(s Sphere, r Ray) ([]Intersection, error) {

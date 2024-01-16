@@ -117,3 +117,120 @@ func TestDefaultMaterial(t *testing.T) {
 		t.Errorf("Default material is incorrect %v", m)
 	}
 }
+
+func TestSphereHasDefaultMaterial(t *testing.T) {
+	s := sphere()
+	m := s.Material
+
+	if !colorEqual(m.Color, Color{1, 1, 1}) ||
+		!floatEqual(m.Ambient, 0.1) ||
+		!floatEqual(m.Diffuse, 0.9) ||
+		!floatEqual(m.Specular, 0.9) ||
+		!floatEqual(m.Shininess, 200.) {
+		t.Errorf("Default material is incorrect %v", m)
+	}
+}
+
+func TestReassignMaterial(t *testing.T) {
+	s := sphere()
+	m := material()
+	m.Ambient = 1
+	s.Material = m
+
+	if !floatEqual(1, s.Material.Ambient) {
+		t.Errorf("Could not reassign sphere's material, have %f instead of %f", s.Material.Ambient, 1.)
+	}
+}
+
+func lightingBackground() (Material, Tuple) {
+	return material(), point(0, 0, 0)
+}
+
+// Light Eye Surface
+func TestLightingEyeBetweenLightAndSurface(t *testing.T) {
+	m, p := lightingBackground()
+	eyeV := vector(0, 0, -1)
+	normalV := vector(0, 0, -1)
+	light, err := pointLight(point(0, 0, -10), Color{1, 1, 1})
+	if err != nil {
+		t.Fatal(err)
+	}
+	res := lighting(m, light, p, eyeV, normalV)
+	expect := Color{1.9, 1.9, 1.9}
+	if !colorEqual(res, expect) {
+		t.Errorf("Expected %v to be %v", res, expect)
+	}
+}
+
+// --------Eye
+//
+// Light      Surface
+func TestLightingEyeBetweenLightAndSurfaceEyeOffset45Degrees(t *testing.T) {
+	m, p := lightingBackground()
+	eyeV := vector(0, math.Sqrt2/2, -math.Sqrt2/2)
+	normalV := vector(0, 0, -1)
+	light, err := pointLight(point(0, 0, -10), Color{1, 1, 1})
+	if err != nil {
+		t.Fatal(err)
+	}
+	res := lighting(m, light, p, eyeV, normalV)
+	expect := Color{1.0, 1.0, 1.0}
+	if !colorEqual(res, expect) {
+		t.Errorf("Expected %v to be %v", res, expect)
+	}
+}
+
+// --------Light
+//
+// Eye           Surface
+func TestLightingEyeOppositeSurfaceLightOffset45Degrees(t *testing.T) {
+	m, p := lightingBackground()
+	eyeV := vector(0, 0, -1)
+	normalV := vector(0, 0, -1)
+	light, err := pointLight(point(0, 10, -10), Color{1, 1, 1})
+	if err != nil {
+		t.Fatal(err)
+	}
+	res := lighting(m, light, p, eyeV, normalV)
+	expect := Color{0.7364, 0.7364, 0.7364}
+	if !colorEqual(res, expect) {
+		t.Errorf("Expected %v to be %v", res, expect)
+	}
+}
+
+// --------Light
+//
+// ----------------Surface
+//
+// --------Eye
+func TestLightingEyeInPathOfReflection(t *testing.T) {
+	m, p := lightingBackground()
+	eyeV := vector(0, -math.Sqrt2/2, -math.Sqrt2/2)
+	normalV := vector(0, 0, -1)
+	light, err := pointLight(point(0, 10, -10), Color{1, 1, 1})
+	if err != nil {
+		t.Fatal(err)
+	}
+	res := lighting(m, light, p, eyeV, normalV)
+	expect := Color{1.6364, 1.6364, 1.6364}
+
+	if !colorEqual(res, expect) {
+		t.Errorf("Expected %v to be %v", res, expect)
+	}
+}
+
+// Light Surface Eye
+func TestLightingLightBehindSurface(t *testing.T) {
+	m, p := lightingBackground()
+	eyeV := vector(0, 0, -1)
+	normalV := vector(0, 0, -1)
+	light, err := pointLight(point(0, 0, 10), Color{1, 1, 1})
+	if err != nil {
+		t.Fatal(err)
+	}
+	res := lighting(m, light, p, eyeV, normalV)
+	expect := Color{0.1, 0.1, 0.1}
+	if !colorEqual(res, expect) {
+		t.Errorf("Expected %v to be %v", res, expect)
+	}
+}

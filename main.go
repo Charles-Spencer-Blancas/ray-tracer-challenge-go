@@ -54,16 +54,17 @@ func main() {
 	pixelSize := float64(wallSize) / float64(canvasSize)
 	half := float64(wallSize) / 2.
 
-	color := Color{1, 0, 0}
 	c := canvas(canvasSize, canvasSize)
+
 	s := sphere()
-	t, err := transformation(shearing(0.2, 0, 0.5, 0.2, 0.2, 0.1), scaling(0.2, 0.3, 1.2), translation(1, 1, 2))
+	s.Material.Color = Color{0.8, 0.6, 0.6}
+
+	lightPos := point(10, 10, -10)
+	lightColor := Color{1, 1, 1}
+	light, err := pointLight(lightPos, lightColor)
 	if err != nil {
 		os.Exit(-1)
 	}
-	s.Transform = t
-
-	s2 := sphere()
 
 	// Loop through canvas pixels, but transform to world coords
 	for y := int64(0); y < canvasSize; y++ {
@@ -73,6 +74,7 @@ func main() {
 			worldX := -half + pixelSize*float64(x)
 
 			pos := point(float64(worldX), float64(worldY), wallZ)
+
 			ray, err := ray(source, vectorNormalize(tupleSubtract(pos, source)))
 			if err != nil {
 				os.Exit(-1)
@@ -82,15 +84,17 @@ func main() {
 			if err != nil {
 				os.Exit(-1)
 			}
-			if !reflect.DeepEqual(hit(xs), Intersection{}) {
-				writePixel(c, x, y, color)
-			}
 
-			xs, err = sphereRayIntersect(s2, ray)
-			if err != nil {
-				os.Exit(-1)
-			}
-			if !reflect.DeepEqual(hit(xs), Intersection{}) {
+			h := hit(xs)
+			if !reflect.DeepEqual(h, Intersection{}) {
+				point := rayPosition(ray, h.t)
+				normal, err := sphereNormalAt(h.Object, point)
+				if err != nil {
+					os.Exit(-2)
+				}
+				eye := tupleNegate(ray.Direction)
+				color := lighting(h.Object.Material, light, point, eye, normal)
+
 				writePixel(c, x, y, color)
 			}
 		}
