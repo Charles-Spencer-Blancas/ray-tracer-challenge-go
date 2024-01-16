@@ -72,3 +72,48 @@ func TestNormalOnTransformedSphere(t *testing.T) {
 		t.Errorf("Expected %v to be %v but it is not", n, expected)
 	}
 }
+
+func TestReflectVector45Deg(t *testing.T) {
+	v := vector(1, -1, 0)
+	n := vector(0, 1, 0)
+	r := vectorNormalReflect(v, n)
+	e := vector(1, 1, 0)
+
+	if !tupleEqual(r, e) {
+		t.Errorf("Expected %v to be %v", r, e)
+	}
+}
+
+func TestReflectVectorSlantedSurface(t *testing.T) {
+	v := vector(0, -1, 0)
+	n := vector(math.Sqrt2/2, math.Sqrt2/2, 0)
+	r := vectorNormalReflect(v, n)
+	e := vector(1, 0, 0)
+
+	if !tupleEqual(r, e) {
+		t.Errorf("Expected %v to be %v", r, e)
+	}
+}
+
+func TestPointLightHasPositionAndIntensity(t *testing.T) {
+	i := Color{1, 1, 1}
+	p := point(0, 0, 0)
+	l, err := pointLight(p, i)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !colorEqual(l.Intensity, i) || !tupleEqual(l.Position, p) {
+		t.Errorf("PointLight was not set, got %v", l)
+	}
+}
+
+func TestDefaultMaterial(t *testing.T) {
+	m := material()
+	if !colorEqual(m.Color, Color{1, 1, 1}) ||
+		!floatEqual(m.Ambient, 0.1) ||
+		!floatEqual(m.Diffuse, 0.9) ||
+		!floatEqual(m.Specular, 0.9) ||
+		!floatEqual(m.Shininess, 200.) {
+		t.Errorf("Default material is incorrect %v", m)
+	}
+}
