@@ -6,11 +6,12 @@ type World struct {
 }
 
 type Computation struct {
-	Object  Sphere
-	t       float64
-	Point   Tuple
-	EyeV    Tuple
-	NormalV Tuple
+	Object   Sphere
+	t        float64
+	Point    Tuple
+	EyeV     Tuple
+	NormalV  Tuple
+	IsInside bool
 }
 
 func defaultWorld() (World, error) {
@@ -50,6 +51,12 @@ func prepareComputations(i Intersection, r Ray) (Computation, error) {
 	if err != nil {
 		return Computation{}, nil
 	}
+	isInside := false
+	eye := tupleNegate(r.Direction)
+	if vectorDot(n, eye) < 0 {
+		isInside = true
+		n = tupleNegate(n)
+	}
 
-	return Computation{i.Object, i.t, p, tupleNegate(r.Direction), n}, nil
+	return Computation{i.Object, i.t, p, eye, n, isInside}, nil
 }

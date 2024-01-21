@@ -82,7 +82,7 @@ func TestPrecomputeStateOfIntersection(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	expected := Computation{i.Object, i.t, point(0, 0, -1), vector(0, 0, -1), vector(0, 0, -1)}
+	expected := Computation{i.Object, i.t, point(0, 0, -1), vector(0, 0, -1), vector(0, 0, -1), false}
 
 	if !floatEqual(comps.t, expected.t) ||
 		!reflect.DeepEqual(comps.Object, expected.Object) ||
@@ -91,4 +91,61 @@ func TestPrecomputeStateOfIntersection(t *testing.T) {
 		!tupleEqual(comps.NormalV, expected.NormalV) {
 		t.Errorf("Expected %v to equal %v", comps, expected)
 	}
+}
+
+func TestHitWhenIntersectionIsOutside(t *testing.T) {
+	r, err := ray(point(0, 0, -5), vector(0, 0, 1))
+	if err != nil {
+		t.Fatal(err)
+	}
+	shape := sphere()
+	i := Intersection{shape, 4}
+	comps, err := prepareComputations(i, r)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if comps.IsInside {
+		t.Errorf("Expected IsInside to be false but it is true")
+	}
+}
+
+func TestHitWhenIntersectionIsInside(t *testing.T) {
+	r, err := ray(point(0, 0, 0), vector(0, 0, 1))
+	if err != nil {
+		t.Fatal(err)
+	}
+	shape := sphere()
+	i := Intersection{shape, 1}
+	comps, err := prepareComputations(i, r)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expected := Computation{i.Object, i.t, point(0, 0, 1), vector(0, 0, -1), vector(0, 0, -1), true}
+
+	if !floatEqual(comps.t, expected.t) ||
+		!tupleEqual(comps.Point, expected.Point) ||
+		!tupleEqual(comps.EyeV, expected.EyeV) ||
+		!tupleEqual(comps.NormalV, expected.NormalV) ||
+		!comps.IsInside {
+		t.Errorf("Expected %v to equal %v", comps, expected)
+	}
+}
+
+func TestShadeAnIntersection(t *testing.T) {
+	w, err := defaultWorld()
+	if err != nil {
+		t.Fatal(err)
+	}
+	r, err := ray(point(0, 0, -5), vector(0, 0, 1))
+	if err != nil {
+		t.Fatal(err)
+	}
+	shape := w.Objects[0]
+	i := Intersection{shape, 4}
+	comps, err := prepareComputations(i, r)
+	if err != nil {
+		t.Fatal(err)
+	}
+	c := shadeHit(w, comps)
 }
