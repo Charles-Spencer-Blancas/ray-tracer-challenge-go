@@ -18,6 +18,14 @@ type Computation struct {
 	IsInside bool
 }
 
+type Camera struct {
+	Transform   Matrix
+	HSize       int64
+	VSize       int64
+	FieldOfView float64
+	PixelSize   float64
+}
+
 func defaultWorld() (World, error) {
 	l, err := pointLight(point(-10, 10, -10), Color{1, 1, 1})
 	if err != nil {
@@ -93,4 +101,23 @@ func colorAt(w World, r Ray) (Color, error) {
 		return Color{}, err
 	}
 	return shadeHit(w, comps), nil
+}
+
+func viewTransform(from Tuple, to Tuple, up Tuple) (Matrix, error) {
+	forward := vectorNormalize(tupleSubtract(to, from))
+	upN := vectorNormalize(up)
+	left := vectorCross(forward, upN)
+	trueUp := vectorCross(left, forward)
+	orientation := matrixConstruct([][]float64{
+		{left.X, left.Y, left.Z, 0.},
+		{trueUp.X, trueUp.Y, trueUp.Z, 0},
+		{-forward.X, -forward.Y, -forward.Z, 0},
+		{0, 0, 0, 1},
+	})
+	tr := translation(-from.X, -from.Y, -from.Z)
+	return matrix4x4Multiply(orientation, tr)
+}
+
+func camera(hSize int64, vSize int64, fov float64) Camera {
+	return Camera{matrixConstructIdentity(4), hSize, vSize, fov}
 }

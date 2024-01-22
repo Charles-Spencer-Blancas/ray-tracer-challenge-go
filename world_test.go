@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math"
 	"reflect"
 	"testing"
 )
@@ -239,5 +240,65 @@ func TestColorWhenIntersectionBehindRay(t *testing.T) {
 	expected := w.Objects[1].Material.Color
 	if !colorEqual(c, expected) {
 		t.Errorf("Expected %v to equal %v", c, expected)
+	}
+}
+
+func TestTransformationMatrixForDefaultOrientation(t *testing.T) {
+	tr, err := viewTransform(point(0, 0, 0), point(0, 0, -1), vector(0, 1, 0))
+	if err != nil {
+		t.Fatal(err)
+	}
+	expected := matrixConstructIdentity(4)
+	if !matrixEqual(tr, expected) {
+		t.Errorf("Expected %v to equal %v", tr, expected)
+	}
+}
+
+func TestTransformationMatrixInPositiveZ(t *testing.T) {
+	tr, err := viewTransform(point(0, 0, 0), point(0, 0, 1), vector(0, 1, 0))
+	if err != nil {
+		t.Fatal(err)
+	}
+	expected := scaling(-1, 1, -1)
+	if !matrixEqual(tr, expected) {
+		t.Errorf("Expected %v to equal %v", tr, expected)
+	}
+}
+
+func TestViewTransformationMovesTheWorld(t *testing.T) {
+	tr, err := viewTransform(point(0, 0, 8), point(0, 0, 0), vector(0, 1, 0))
+	if err != nil {
+		t.Fatal(err)
+	}
+	expected := translation(0, 0, -8)
+	if !matrixEqual(tr, expected) {
+		t.Errorf("Expected %v to equal %v", tr, expected)
+	}
+}
+
+func TestArbitraryViewTransformation(t *testing.T) {
+	tr, err := viewTransform(point(1, 3, 2), point(4, -2, 8), vector(1, 1, 0))
+	if err != nil {
+		t.Fatal(err)
+	}
+	expected := matrixConstruct([][]float64{
+		{-0.50709, 0.50709, 0.67612, -2.36643},
+		{0.76772, 0.60609, 0.12122, -2.82843},
+		{-0.35857, 0.59761, -0.71714, 0.00000},
+		{0.00000, 0.00000, 0.00000, 1.00000},
+	})
+	if !matrixEqual(tr, expected) {
+		t.Errorf("Expected %v to equal %v", tr, expected)
+	}
+}
+
+func TestConstructCamera(t *testing.T) {
+	cam := camera(160, 120, math.Pi/2.)
+	expected := Camera{matrixConstructIdentity(4), 160, 120, math.Pi / 2.}
+	if cam.HSize != expected.HSize ||
+		cam.VSize != expected.VSize ||
+		!floatEqual(cam.FieldOfView, expected.FieldOfView) ||
+		!matrixEqual(cam.Transform, expected.Transform) {
+		t.Errorf("Expected %v to equal %v", cam, expected)
 	}
 }
