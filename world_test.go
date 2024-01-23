@@ -294,11 +294,105 @@ func TestArbitraryViewTransformation(t *testing.T) {
 
 func TestConstructCamera(t *testing.T) {
 	cam := camera(160, 120, math.Pi/2.)
-	expected := Camera{matrixConstructIdentity(4), 160, 120, math.Pi / 2.}
+	expected := Camera{matrixConstructIdentity(4), 160, 120, math.Pi / 2., -1, -1, -1}
 	if cam.HSize != expected.HSize ||
 		cam.VSize != expected.VSize ||
 		!floatEqual(cam.FieldOfView, expected.FieldOfView) ||
 		!matrixEqual(cam.Transform, expected.Transform) {
 		t.Errorf("Expected %v to equal %v", cam, expected)
+	}
+}
+
+func TestPixelSizeForHorizontalCanvas(t *testing.T) {
+	c := camera(200, 125, math.Pi/2.)
+	expected := 0.01
+	if !floatEqual(c.PixelSize, expected) {
+		t.Errorf("Expected %v to equal %v", c.PixelSize, expected)
+	}
+}
+
+func TestPixelSizeForVerticalCanvas(t *testing.T) {
+	c := camera(125, 200, math.Pi/2.)
+	expected := 0.01
+	if !floatEqual(c.PixelSize, expected) {
+		t.Errorf("Expected %v to equal %v", c.PixelSize, expected)
+	}
+}
+
+func TestConstructRayThroughCenterOfTheCanvas(t *testing.T) {
+	c := camera(201, 101, math.Pi/2.)
+	r, err := rayForPixel(c, 100, 50)
+	if err != nil {
+		t.Fatal(err)
+	}
+	e1 := point(0, 0, 0)
+	if !tupleEqual(r.Origin, e1) {
+		t.Errorf("Expected %v to equal %v", r.Origin, e1)
+	}
+	e2 := vector(0, 0, -1)
+	if !tupleEqual(r.Direction, e2) {
+		t.Errorf("Expected %v to equal %v", r.Origin, e2)
+	}
+}
+
+func TestConstructRayThroughCornerOfTheCanvas(t *testing.T) {
+	c := camera(201, 101, math.Pi/2.)
+	r, err := rayForPixel(c, 0, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	e1 := point(0, 0, 0)
+	if !tupleEqual(r.Origin, e1) {
+		t.Errorf("Expected %v to equal %v", r.Origin, e1)
+	}
+	e2 := vector(0.66519, 0.33259, -0.66851)
+	if !tupleEqual(r.Direction, e2) {
+		t.Errorf("Expected %v to equal %v", r.Origin, e2)
+	}
+}
+
+func TestConstructRayWhenCameraIsTransformed(t *testing.T) {
+	c := camera(201, 101, math.Pi/2.)
+	tr, err := matrix4x4Multiply(rotationY(math.Pi/4), translation(0, -2, 5))
+	if err != nil {
+		t.Fatal(err)
+	}
+	c.Transform = tr
+	r, err := rayForPixel(c, 100, 50)
+	if err != nil {
+		t.Fatal(err)
+	}
+	e1 := point(0, 2, -5)
+	if !tupleEqual(r.Origin, e1) {
+		t.Errorf("Expected %v to equal %v", r.Origin, e1)
+	}
+	e2 := vector(math.Sqrt2/2., 0, -math.Sqrt2/2.)
+	if !tupleEqual(r.Direction, e2) {
+		t.Errorf("Expected %v to equal %v", r.Origin, e2)
+	}
+}
+
+func TestRenderWorldWithCamera(t *testing.T) {
+	w, err := defaultWorld()
+	if err != nil {
+		t.Fatal(err)
+	}
+	c := camera(11, 11, math.Pi/2.)
+	from := point(0, 0, -5)
+	to := point(0, 0, 0)
+	up := vector(0, 1, 0)
+	tr, err := viewTransform(from, to, up)
+	if err != nil {
+		t.Fatal(err)
+	}
+	c.Transform = tr
+	image, err := render(c, w)
+	if err != nil {
+		t.Fatal(err)
+	}
+	wanted := pixelAt(image, 5, 5)
+	expected := Color{0.38066, 0.47583, 0.2855}
+	if !colorEqual(wanted, expected) {
+		t.Errorf("Expected %v to equal %v", wanted, expected)
 	}
 }

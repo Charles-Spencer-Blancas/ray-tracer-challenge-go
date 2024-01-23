@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math"
 	"reflect"
 )
 
@@ -24,6 +25,8 @@ type Camera struct {
 	VSize       int64
 	FieldOfView float64
 	PixelSize   float64
+	HalfWidth   float64
+	HalfHeight  float64
 }
 
 func defaultWorld() (World, error) {
@@ -119,5 +122,68 @@ func viewTransform(from Tuple, to Tuple, up Tuple) (Matrix, error) {
 }
 
 func camera(hSize int64, vSize int64, fov float64) Camera {
-	return Camera{matrixConstructIdentity(4), hSize, vSize, fov}
+	halfView := math.Tan(fov / 2.)
+	aspect := float64(hSize) / float64(vSize)
+
+	var hw, hh float64
+	if aspect >= 1 {
+		hw = halfView
+		hh = halfView / aspect
+	} else {
+		hw = halfView * aspect
+		hh = halfView
+	}
+
+	pixelSize := (hw * 2) / float64(hSize)
+
+	return Camera{matrixConstructIdentity(4), hSize, vSize, fov, pixelSize, hw, hh}
+}
+
+func rayForPixel(camera Camera, px int64, py int64) (Ray, error) {
+	// Offset from edge of canvas to center of pixel
+	xOffset := (float64(px) + 0.5) * camera.PixelSize
+	yOffset := (float64(py) + 0.5) * camera.PixelSize
+
+	// Untransformed coords of pixel in world space
+	// Camera looks toward -z, so +x is left
+	worldX := camera.HalfWidth - xOffset
+	worldY := camera.HalfHeight - yOffset
+
+	// Transform canvas point and origin with camera matrix
+	// Compute ray's direction vector
+	// Note that canvas at z=-1
+	inv, err := matrixInverse(camera.Transform)
+	if err != nil {
+		return Ray{}, err
+	}
+	pixel, err := matrix4x4TupleMultiply(inv, point(worldX, worldY, -1))
+	if err != nil {
+		return Ray{}, err
+	}
+	origin, err := matrix4x4TupleMultiply(inv, point(0, 0, 0))
+	if err != nil {
+		return Ray{}, err
+	}
+	direction := vectorNormalize(tupleSubtract(pixel, origin))
+	return Ray{origin, direction}, err
+}
+
+func render(camera Camera, world World) (Canvas, error) {
+	image := canvas(camera.HSize, camera.VSize)
+
+	for y := int64(0); y < camera.VSize; y++ {
+		for x := int64(0); x < camera.HSize; x++ {
+			ray, err := rayForPixel(camera, x, y)
+			if err != nil {
+				return Canvas{}, err
+			}
+			color, err := colorAt(world, ray)
+			if err != nil {
+				return Canvas{}, err
+			}
+			writePixel(image, x, y, color)
+		}
+	}
+
+	return image, nil
 }
