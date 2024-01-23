@@ -1,8 +1,8 @@
 package main
 
 import (
+	"math"
 	"os"
-	"reflect"
 )
 
 type Projectile struct {
@@ -22,84 +22,108 @@ func tick(e Environment, p Projectile) Projectile {
 	return Projectile{pos, vel}
 }
 
-func writePixel3x3(c Canvas, x int64, y int64, col Color) {
-	writePixel(c, x, y, col)
-	writePixel(c, x-1, y, col)
-	writePixel(c, x+1, y, col)
-	writePixel(c, x, y-1, col)
-	writePixel(c, x-1, y-1, col)
-	writePixel(c, x+1, y-1, col)
-	writePixel(c, x, y+1, col)
-	writePixel(c, x-1, y+1, col)
-	writePixel(c, x+1, y+1, col)
-}
-
-func writePixel9x9(c Canvas, x int64, y int64, col Color) {
-	writePixel3x3(c, x, y, col)
-	writePixel3x3(c, x-3, y, col)
-	writePixel3x3(c, x+3, y, col)
-	writePixel3x3(c, x, y-3, col)
-	writePixel3x3(c, x-3, y-3, col)
-	writePixel3x3(c, x+3, y-3, col)
-	writePixel3x3(c, x, y+3, col)
-	writePixel3x3(c, x-3, y+3, col)
-	writePixel3x3(c, x+3, y+3, col)
-}
-
 func main() {
-	canvasSize := int64(300)
-	source := point(0, 0, -5)
-	wallZ := float64(10)
-	wallSize := int64(7)
-	pixelSize := float64(wallSize) / float64(canvasSize)
-	half := float64(wallSize) / 2.
+	floor := sphere()
+	floor.Transform = scaling(10, 0.01, 10)
+	floor.Material = material()
+	floor.Material.Color = Color{1, 0.9, 0.9}
+	floor.Material.Specular = 0
+	floor.Material.Diffuse = 0.1
 
-	c := canvas(canvasSize, canvasSize)
+	leftWall := sphere()
 
-	s := sphere()
-	s.Material.Color = Color{0.8, 0.6, 0.6}
-
-	lightPos := point(10, 10, -10)
-	lightColor := Color{1, 1, 1}
-	light, err := pointLight(lightPos, lightColor)
+	lt, err := transformation(
+		scaling(10, 0.01, 10),
+		rotationX(math.Pi/2.),
+		rotationY(-math.Pi/4.),
+		translation(0, 0, 5),
+	)
 	if err != nil {
 		os.Exit(-1)
 	}
+	leftWall.Transform = lt
+	leftWall.Material = floor.Material
 
-	// Loop through canvas pixels, but transform to world coords
-	for y := int64(0); y < canvasSize; y++ {
-		worldY := half - pixelSize*float64(y)
-
-		for x := int64(0); x < canvasSize; x++ {
-			worldX := -half + pixelSize*float64(x)
-
-			pos := point(float64(worldX), float64(worldY), wallZ)
-
-			ray, err := ray(source, vectorNormalize(tupleSubtract(pos, source)))
-			if err != nil {
-				os.Exit(-1)
-			}
-
-			xs, err := sphereRayIntersect(s, ray)
-			if err != nil {
-				os.Exit(-1)
-			}
-
-			h := hit(xs)
-			if !reflect.DeepEqual(h, Intersection{}) {
-				point := rayPosition(ray, h.t)
-				normal, err := sphereNormalAt(h.Object, point)
-				if err != nil {
-					os.Exit(-2)
-				}
-				eye := tupleNegate(ray.Direction)
-				color := lighting(h.Object.Material, light, point, eye, normal)
-
-				writePixel(c, x, y, color)
-			}
-		}
+	rightWall := sphere()
+	rt, err := transformation(
+		scaling(10, 0.01, 10),
+		rotationX(math.Pi/2.),
+		rotationY(math.Pi/4.),
+		translation(0, 0, 5),
+	)
+	if err != nil {
+		os.Exit(-1)
 	}
+	rightWall.Transform = rt
+	rightWall.Material = floor.Material
 
-	ppm := canvasToPPM(c)
-	os.WriteFile("wall.ppm", []byte(ppm), 0644)
+	middle := sphere()
+	t, err := transformation(translation(-0.5, 1, 0.5), scaling(1, 1.7, 1))
+	if err != nil {
+		os.Exit(-1)
+	}
+	middle.Transform = t
+	middle.Material = material()
+	middle.Material.Color = Color{0.1, 1, 0.5}
+	middle.Material.Diffuse = 0.7
+	middle.Material.Specular = 0.3
+
+	right := sphere()
+	t, err = transformation(scaling(0.5, 0.5, 0.5), translation(1.5, 0.5, -0.5))
+	if err != nil {
+		os.Exit(-1)
+	}
+	right.Transform = t
+	right.Material.Color = Color{0.5, 1, 0.1}
+	right.Material.Diffuse = 0.7
+	right.Material.Specular = 0.3
+
+	left := sphere()
+	t, err = transformation(scaling(0.33, 0.33, 0.33), translation(-1.5, 0.33, -0.75), shearing(-0.3, 0.2, 0, 0, 0.5, 0))
+	if err != nil {
+		os.Exit(-1)
+	}
+	left.Transform = t
+	left.Material.Color = Color{1, 0.8, 0.1}
+	left.Material.Diffuse = 0.7
+	left.Material.Specular = 0.3
+
+	float := sphere()
+	t, err = transformation(translation(2, 2.1, -0.5), shearing(0.5, 0, 0, 0, 0, 0))
+	if err != nil {
+		os.Exit(-1)
+	}
+	float.Transform = t
+	left.Material.Color = Color{0.8, 0.6, 0.6}
+	left.Material.Diffuse = 0.7
+	left.Material.Specular = 0.3
+
+	world := World{}
+	world.Objects = []Sphere{leftWall, rightWall, floor, left, right, middle, float}
+	l1, err := pointLight(point(-10, 10, -10), Color{1, 0.2, 0.3})
+	if err != nil {
+		os.Exit(-1)
+	}
+	l2, err := pointLight(point(10, 10, 10), Color{0.2, 0.8, 1})
+	if err != nil {
+		os.Exit(-1)
+	}
+	l3, err := pointLight(point(0, 0, 0), Color{0.5, 0.5, 0.5})
+	if err != nil {
+		os.Exit(-1)
+	}
+	world.Lights = []PointLight{l1, l2, l3}
+	camera := camera(500, 500, math.Pi/3.)
+	vt, err := viewTransform(point(0, 1.5, -5), point(0, 1, 0), vector(0, 1, 0))
+	camera.Transform = vt
+	if err != nil {
+		os.Exit(-1)
+	}
+	canvas, err := render(camera, world)
+	if err != nil {
+		os.Exit(-1)
+	}
+	ppm := canvasToPPM(canvas)
+
+	os.WriteFile("camera.ppm", []byte(ppm), 0644)
 }
