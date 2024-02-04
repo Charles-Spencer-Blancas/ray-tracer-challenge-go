@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math"
+	"reflect"
 )
 
 type PointLight struct {
@@ -54,7 +55,13 @@ func vectorNormalReflect(in Tuple, normal Tuple) Tuple {
 	return tupleSubtract(in, tupleScale(normal, d))
 }
 
-func lighting(material Material, light PointLight, point Tuple, eyeV Tuple, normalV Tuple) Color {
+func lighting(material Material,
+	light PointLight,
+	point Tuple,
+	eyeV Tuple,
+	normalV Tuple,
+	inShadow bool,
+) Color {
 	// Blend surface color with light's color
 	effectiveColor := colorBlend(material.Color, light.Intensity)
 
@@ -63,6 +70,11 @@ func lighting(material Material, light PointLight, point Tuple, eyeV Tuple, norm
 
 	// Compute ambient contribution
 	ambient := colorScale(effectiveColor, material.Ambient)
+
+	// If inShadow, ignore specular and diffuse
+	if inShadow {
+		return ambient
+	}
 
 	// LightDotNormal: Cos of angle between light vector and normal
 	// Negative means light on other side of surface, so just ambient, no diffuse and specular
@@ -76,7 +88,7 @@ func lighting(material Material, light PointLight, point Tuple, eyeV Tuple, norm
 
 	// ReflectDotEye: Cos of angle between reflection vector and eye vector
 	// Negative means light reflects away from eye
-	// So no specular, just ambient and diffuse
+	// So no specular, just ambikkkent and diffuse
 	reflectV := vectorNormalReflect(tupleNegate(lightV), normalV)
 	reflectDotEye := vectorDot(reflectV, eyeV)
 	if reflectDotEye <= 0 {
@@ -88,4 +100,27 @@ func lighting(material Material, light PointLight, point Tuple, eyeV Tuple, norm
 	specular := colorScale(light.Intensity, material.Specular*factor)
 
 	return colorAdd(ambient, colorAdd(diffuse, specular))
+}
+
+func isShadowed(w World, p Tuple) ([]bool, error) {
+	distsToLight := []bool{}
+	for _, l := range w.Lights {
+		v := tupleSubtract(l.Position, p)
+		dist := vectorMagnitude(v)
+		dir := vectorNormalize(v)
+
+		r, err := ray(p, dir)
+		if err != nil {
+			return []bool{}, err
+		}
+		intersections, err := worldRayIntersect(w, r)
+		if err != nil {
+			return []bool{}, err
+		}
+		h := hit(intersections)
+		hitPresent := !reflect.DeepEqual(h, Intersection{})
+
+		distsToLight = append(distsToLight, hitPresent && h.t < dist)
+	}
+	return distsToLight, nil
 }

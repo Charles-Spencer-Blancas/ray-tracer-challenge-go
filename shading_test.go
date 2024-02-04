@@ -155,7 +155,7 @@ func TestLightingEyeBetweenLightAndSurface(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	res := lighting(m, light, p, eyeV, normalV)
+	res := lighting(m, light, p, eyeV, normalV, false)
 	expect := Color{1.9, 1.9, 1.9}
 	if !colorEqual(res, expect) {
 		t.Errorf("Expected %v to be %v", res, expect)
@@ -173,7 +173,7 @@ func TestLightingEyeBetweenLightAndSurfaceEyeOffset45Degrees(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	res := lighting(m, light, p, eyeV, normalV)
+	res := lighting(m, light, p, eyeV, normalV, false)
 	expect := Color{1.0, 1.0, 1.0}
 	if !colorEqual(res, expect) {
 		t.Errorf("Expected %v to be %v", res, expect)
@@ -191,7 +191,7 @@ func TestLightingEyeOppositeSurfaceLightOffset45Degrees(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	res := lighting(m, light, p, eyeV, normalV)
+	res := lighting(m, light, p, eyeV, normalV, false)
 	expect := Color{0.7364, 0.7364, 0.7364}
 	if !colorEqual(res, expect) {
 		t.Errorf("Expected %v to be %v", res, expect)
@@ -211,7 +211,7 @@ func TestLightingEyeInPathOfReflection(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	res := lighting(m, light, p, eyeV, normalV)
+	res := lighting(m, light, p, eyeV, normalV, false)
 	expect := Color{1.6364, 1.6364, 1.6364}
 
 	if !colorEqual(res, expect) {
@@ -228,9 +228,109 @@ func TestLightingLightBehindSurface(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	res := lighting(m, light, p, eyeV, normalV)
+	res := lighting(m, light, p, eyeV, normalV, false)
 	expect := Color{0.1, 0.1, 0.1}
 	if !colorEqual(res, expect) {
 		t.Errorf("Expected %v to be %v", res, expect)
+	}
+}
+
+func TestLightingWithSurfaceInShadow(t *testing.T) {
+	m, p := lightingBackground()
+	eyeV := vector(0, 0, -1)
+	normalV := vector(0, 0, -1)
+	light, err := pointLight(point(0, 0, -10), Color{1, 1, 1})
+	if err != nil {
+		t.Fatal(err)
+	}
+	inShadow := true
+	res := lighting(m, light, p, eyeV, normalV, inShadow)
+	expect := Color{0.1, 0.1, 0.1}
+	if !colorEqual(res, expect) {
+		t.Errorf("Expected %v to be %v", res, expect)
+	}
+}
+
+func TestNoShadowWhenNothingCollinearWithPointAndLight(t *testing.T) {
+	w, err := defaultWorld()
+	if err != nil {
+		t.Fatal(err)
+	}
+	p := point(0, 10, 0)
+	res, err := isShadowed(w, p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	expect := []bool{false}
+	if len(res) != len(expect) {
+		t.Errorf("Expected %v to be %v", res, expect)
+	}
+	for i := range res {
+		if res[i] != expect[i] {
+			t.Errorf("Expected %v to be %v", res, expect)
+		}
+	}
+}
+
+func TestShadowWhenObjectBetweenPointAndLight(t *testing.T) {
+	w, err := defaultWorld()
+	if err != nil {
+		t.Fatal(err)
+	}
+	p := point(10, -10, 10)
+	res, err := isShadowed(w, p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	expect := []bool{true}
+	if len(res) != len(expect) {
+		t.Errorf("Expected %v to be %v", res, expect)
+	}
+	for i := range res {
+		if res[i] != expect[i] {
+			t.Errorf("Expected %v to be %v", res, expect)
+		}
+	}
+}
+
+func TestNoShadowWhenObjectBehindLight(t *testing.T) {
+	w, err := defaultWorld()
+	if err != nil {
+		t.Fatal(err)
+	}
+	p := point(-20, 20, 20)
+	res, err := isShadowed(w, p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	expect := []bool{false}
+	if len(res) != len(expect) {
+		t.Errorf("Expected %v to be %v", res, expect)
+	}
+	for i := range res {
+		if res[i] != expect[i] {
+			t.Errorf("Expected %v to be %v", res, expect)
+		}
+	}
+}
+
+func TestNoShadowWhenObjectBehindPoint(t *testing.T) {
+	w, err := defaultWorld()
+	if err != nil {
+		t.Fatal(err)
+	}
+	p := point(-2, 2, -2)
+	res, err := isShadowed(w, p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	expect := []bool{false}
+	if len(res) != len(expect) {
+		t.Errorf("Expected %v to be %v", res, expect)
+	}
+	for i := range res {
+		if res[i] != expect[i] {
+			t.Errorf("Expected %v to be %v", res, expect)
+		}
 	}
 }
